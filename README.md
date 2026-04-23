@@ -41,6 +41,32 @@ src/
 cargo run
 ```
 
+### Hot Reload Build
+
+This project uses `watchexec` for the local edit-build-restart loop.
+
+Install it once:
+
+```bash
+cargo install --locked watchexec-cli
+```
+
+Then start the watcher from the project root:
+
+```powershell
+./scripts/dev-watch.ps1
+```
+
+The watcher listens to:
+
+- `src`
+- `Cargo.toml`
+- `Cargo.lock`
+- `build.rs`
+- `icon.png`
+
+and ignores `target/**` so rebuild output does not trigger another restart.
+
 ### Build
 
 ```bash

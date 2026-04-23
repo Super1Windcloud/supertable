@@ -101,16 +101,7 @@ fn render_welcome_rail() -> impl IntoElement {
         )
         .child(
             div()
-                .mt_4()
-                .w_full()
-                .flex()
-                .gap_3()
-                .child(Button::new("purchase").ghost().label("购买").w_full())
-                .child(Button::new("activate").primary().label("激活").w_full()),
-        )
-        .child(
-            div()
-                .mt_10()
+                .mt_8()
                 .w_full()
                 .flex()
                 .flex_col()
