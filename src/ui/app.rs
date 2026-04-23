@@ -15,12 +15,13 @@ pub struct SuperTableApp {
 }
 
 impl SuperTableApp {
-    pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self {
-        let global_search = cx.new(|cx| {
+    pub fn new(window: &mut Window, cx: &mut Context<SuperTableApp>) -> Self {
+        let global_search: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
             InputState::new(window, cx).placeholder("Search connections, tables, snippets")
         });
-        let grid_search =
-            cx.new(|cx| InputState::new(window, cx).placeholder("Filter 234 rows in result set"));
+        let grid_search: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
+            InputState::new(window, cx).placeholder("Filter 234 rows in result set")
+        });
 
         Self {
             global_search,
