@@ -47,7 +47,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_FAINT))
-                                .child("TablePlus-inspired workspace"),
+                                .child("Unified database workspace"),
                         ),
                 ),
         )
@@ -62,7 +62,14 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .items_center()
                 .gap_2()
                 .child(Button::new("new-query").primary().label("New Query"))
-                .child(Button::new("import").ghost().label("Import"))
+                .child(
+                    Button::new("import")
+                        .ghost()
+                        .label("Add Connection")
+                        .on_click(_cx.listener(|app, _, window, cx| {
+                            app.open_connection_form(window, cx)
+                        })),
+                )
                 .child(Button::new("share").ghost().label("Share")),
         )
 }

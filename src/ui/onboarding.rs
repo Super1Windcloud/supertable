@@ -20,13 +20,13 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
         .size_full()
         .bg(rgb(APP_BG))
         .flex()
-        .child(render_welcome_rail())
+        .child(render_welcome_rail(_cx))
         .child(
             div()
                 .flex_1()
                 .flex()
                 .flex_col()
-                .child(render_search_bar(app))
+                .child(render_search_bar(app, _cx))
                 .child(
                     div()
                         .flex_1()
@@ -58,7 +58,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
         )
 }
 
-fn render_welcome_rail() -> impl IntoElement {
+fn render_welcome_rail(cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
         .w(px(280.))
         .h_full()
@@ -83,7 +83,7 @@ fn render_welcome_rail() -> impl IntoElement {
                 .text_size(px(54.))
                 .font_weight(gpui::FontWeight::BOLD)
                 .text_color(rgb(TEXT))
-                .child("TablePlus"),
+                .child("SuperTable"),
         )
         .child(
             div()
@@ -96,8 +96,8 @@ fn render_welcome_rail() -> impl IntoElement {
             div()
                 .mt_5()
                 .text_size(px(15.))
-                .text_color(rgb(0xF0A84B))
-                .child("您正在使用免费试用版"),
+                .text_color(rgb(TEXT_FAINT))
+                .child("现代数据库工作台"),
         )
         .child(
             div()
@@ -108,11 +108,13 @@ fn render_welcome_rail() -> impl IntoElement {
                 .gap_3()
                 .child(action_row("备份数据库..."))
                 .child(action_row("还原数据库..."))
-                .child(action_row("创建连接...")),
+                .child(action_row("创建连接...").on_click(
+                    cx.listener(|app, _, window, cx| app.open_connection_form(window, cx)),
+                )),
         )
 }
 
-fn render_search_bar(app: &SuperTableApp) -> impl IntoElement {
+fn render_search_bar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
         .h(px(64.))
         .px_4()
@@ -121,7 +123,12 @@ fn render_search_bar(app: &SuperTableApp) -> impl IntoElement {
         .gap_3()
         .border_b_1()
         .border_color(rgb(BORDER_SOFT))
-        .child(Button::new("create-connection").ghost().icon(IconName::Plus))
+        .child(
+            Button::new("create-connection")
+                .ghost()
+                .icon(IconName::Plus)
+                .on_click(cx.listener(|app, _, window, cx| app.open_connection_form(window, cx))),
+        )
         .child(
             div()
                 .flex_1()
@@ -129,8 +136,12 @@ fn render_search_bar(app: &SuperTableApp) -> impl IntoElement {
         )
 }
 
-fn action_row(label: &'static str) -> impl IntoElement {
-    div()
+fn action_row(label: &'static str) -> Button {
+    Button::new(label)
+        .ghost()
+        .w_full()
+        .child(
+            div()
         .w_full()
         .h(px(56.))
         .px_4()
@@ -166,5 +177,5 @@ fn action_row(label: &'static str) -> impl IntoElement {
                 .text_size(px(12.))
                 .text_color(rgb(TEXT_FAINT))
                 .child(""),
-        )
+        ))
 }
