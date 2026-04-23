@@ -4,9 +4,27 @@ mod palette;
 mod ui;
 
 use gpui::{App, AppContext, Application, Bounds, WindowBounds, WindowOptions, px, size};
-use gpui_component::{Root, theme::{Theme, ThemeMode}};
+#[cfg(target_os = "macos")]
+use gpui::{KeyBinding, Menu, MenuItem, SystemMenuType, actions};
+use gpui_component::{
+    Root,
+    theme::{Theme, ThemeMode},
+};
 
+#[cfg(target_os = "macos")]
+use cocoa::{
+    appkit::NSApp,
+    base::{id, nil},
+    foundation::NSString,
+};
+#[cfg(target_os = "macos")]
+use objc::{class, msg_send, sel, sel_impl};
+
+use assets::app_icon_path;
 use ui::app::SuperTableApp;
+
+#[cfg(target_os = "macos")]
+actions!(supertable_app, [Quit]);
 
 #[cfg(target_os = "windows")]
 use raw_window_handle::{HasWindowHandle, RawWindowHandle};
@@ -22,7 +40,7 @@ use windows_sys::Win32::{
 };
 
 fn open_main_window(cx: &mut App) {
-    let bounds = Bounds::centered(None, size(px(1440.), px(920.)), cx);
+    let bounds = Bounds::centered(None, size(px(1280.), px(800.)), cx);
     cx.open_window(
         WindowOptions {
             window_bounds: Some(WindowBounds::Windowed(bounds)),
@@ -45,10 +63,50 @@ fn main() {
     Application::new().run(|cx: &mut App| {
         gpui_component::init(cx);
         Theme::change(ThemeMode::Dark, None, cx);
+        #[cfg(target_os = "macos")]
+        configure_macos_app(cx);
 
         open_main_window(cx);
         cx.activate(true);
     });
+}
+
+#[cfg(target_os = "macos")]
+fn configure_macos_app(cx: &mut App) {
+    cx.on_action(quit);
+    cx.bind_keys([KeyBinding::new("cmd-q", Quit, None)]);
+    cx.set_menus(vec![Menu {
+        name: "SuperTable".into(),
+        items: vec![
+            MenuItem::os_submenu("Services", SystemMenuType::Services),
+            MenuItem::separator(),
+            MenuItem::action("Quit SuperTable", Quit),
+        ],
+    }]);
+    set_macos_dock_icon();
+}
+
+#[cfg(target_os = "macos")]
+fn quit(_: &Quit, cx: &mut App) {
+    cx.quit();
+}
+
+#[cfg(target_os = "macos")]
+fn set_macos_dock_icon() {
+    let Some(icon_path) = app_icon_path().to_str() else {
+        return;
+    };
+
+    unsafe {
+        let ns_image: id = msg_send![class!(NSImage), alloc];
+        let ns_image: id =
+            msg_send![ns_image, initWithContentsOfFile: NSString::alloc(nil).init_str(icon_path)];
+
+        if ns_image != nil {
+            let app = NSApp();
+            let _: () = msg_send![app, setApplicationIconImage: ns_image];
+        }
+    }
 }
 
 #[cfg(target_os = "windows")]
