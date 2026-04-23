@@ -5,6 +5,7 @@ use gpui_component::{ActiveTheme, input::InputState};
 
 use crate::{
     data::{Connection, ConnectionKind, load_connections, save_connections},
+    i18n::Locale,
     palette::{APP_BG, APP_BG_ALT},
 };
 
@@ -12,6 +13,7 @@ use super::{connection_form, editor, onboarding, results, sidebar, top_bar};
 
 pub struct SuperTableApp {
     pub connections: Vec<Connection>,
+    pub locale: Locale,
     pub global_search: Entity<InputState>,
     pub grid_search: Entity<InputState>,
     pub onboarding_search: Entity<InputState>,
@@ -30,55 +32,126 @@ pub struct SuperTableApp {
 
 impl SuperTableApp {
     pub fn new(window: &mut Window, cx: &mut Context<SuperTableApp>) -> Self {
-        let connections = load_connections();
-        let global_search: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("Search connections, tables, snippets")
-        });
-        let grid_search: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("Filter 234 rows in result set")
-        });
-        let onboarding_search: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("搜索连接... (Ctrl F)")
-        });
-        let connection_name: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("连接名称")
-        });
-        let connection_host: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("127.0.0.1")
-        });
-        let connection_port: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("3306")
-        });
-        let connection_database: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("数据库 / schema / db index")
-        });
-        let connection_username: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("用户名")
-        });
-        let connection_password: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("密码")
-        });
-        let connection_file_path: Entity<InputState> = cx.new(|cx: &mut Context<InputState>| {
-            InputState::new(window, cx).placeholder("C:\\data\\app.db")
-        });
+        let locale = Locale::ZhCn;
 
         Self {
-            connections,
-            global_search,
-            grid_search,
-            onboarding_search,
-            connection_name,
-            connection_host,
-            connection_port,
-            connection_database,
-            connection_username,
-            connection_password,
-            connection_file_path,
+            connections: load_connections(),
+            locale,
+            global_search: Self::build_input(window, cx, locale.global_search_placeholder(), ""),
+            grid_search: Self::build_input(window, cx, locale.grid_search_placeholder(), ""),
+            onboarding_search: Self::build_input(
+                window,
+                cx,
+                locale.onboarding_search_placeholder(),
+                "",
+            ),
+            connection_name: Self::build_input(
+                window,
+                cx,
+                locale.connection_name_placeholder(),
+                "",
+            ),
+            connection_host: Self::build_input(window, cx, "127.0.0.1", "127.0.0.1"),
+            connection_port: Self::build_input(window, cx, "3306", "3306"),
+            connection_database: Self::build_input(
+                window,
+                cx,
+                locale.connection_database_placeholder(),
+                "",
+            ),
+            connection_username: Self::build_input(
+                window,
+                cx,
+                locale.connection_username_placeholder(),
+                "",
+            ),
+            connection_password: Self::build_input(
+                window,
+                cx,
+                locale.connection_password_placeholder(),
+                "",
+            ),
+            connection_file_path: Self::build_input(window, cx, "C:\\data\\app.db", ""),
             show_connection_form: false,
             selected_connection_kind: ConnectionKind::MySql,
             selected_editor_tab: 0,
             selected_result_tab: 0,
         }
+    }
+
+    fn build_input(
+        window: &mut Window,
+        cx: &mut Context<Self>,
+        placeholder: &'static str,
+        value: &str,
+    ) -> Entity<InputState> {
+        let value = value.to_string();
+        cx.new(|cx: &mut Context<InputState>| {
+            let mut input = InputState::new(window, cx).placeholder(placeholder);
+            if !value.is_empty() {
+                input.set_value(value.clone(), window, cx);
+            }
+            input
+        })
+    }
+
+    fn relocalize_inputs(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let locale = self.locale;
+        let global_search = self.global_search.read(cx).value().to_string();
+        let grid_search = self.grid_search.read(cx).value().to_string();
+        let onboarding_search = self.onboarding_search.read(cx).value().to_string();
+        let connection_name = self.connection_name.read(cx).value().to_string();
+        let connection_host = self.connection_host.read(cx).value().to_string();
+        let connection_port = self.connection_port.read(cx).value().to_string();
+        let connection_database = self.connection_database.read(cx).value().to_string();
+        let connection_username = self.connection_username.read(cx).value().to_string();
+        let connection_password = self.connection_password.read(cx).value().to_string();
+        let connection_file_path = self.connection_file_path.read(cx).value().to_string();
+
+        self.global_search =
+            Self::build_input(window, cx, locale.global_search_placeholder(), &global_search);
+        self.grid_search =
+            Self::build_input(window, cx, locale.grid_search_placeholder(), &grid_search);
+        self.onboarding_search = Self::build_input(
+            window,
+            cx,
+            locale.onboarding_search_placeholder(),
+            &onboarding_search,
+        );
+        self.connection_name = Self::build_input(
+            window,
+            cx,
+            locale.connection_name_placeholder(),
+            &connection_name,
+        );
+        self.connection_host = Self::build_input(window, cx, "127.0.0.1", &connection_host);
+        self.connection_port = Self::build_input(window, cx, "3306", &connection_port);
+        self.connection_database = Self::build_input(
+            window,
+            cx,
+            locale.connection_database_placeholder(),
+            &connection_database,
+        );
+        self.connection_username = Self::build_input(
+            window,
+            cx,
+            locale.connection_username_placeholder(),
+            &connection_username,
+        );
+        self.connection_password = Self::build_input(
+            window,
+            cx,
+            locale.connection_password_placeholder(),
+            &connection_password,
+        );
+        self.connection_file_path =
+            Self::build_input(window, cx, "C:\\data\\app.db", &connection_file_path);
+    }
+
+    pub fn toggle_locale(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.locale = self.locale.toggle();
+        self.relocalize_inputs(window, cx);
+        cx.notify();
     }
 
     pub fn has_connections(&self) -> bool {
@@ -148,7 +221,8 @@ impl SuperTableApp {
     }
 
     fn reset_connection_form(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.connection_name.update(cx, |input, cx| input.set_value("", window, cx));
+        self.connection_name
+            .update(cx, |input, cx| input.set_value("", window, cx));
         self.connection_host
             .update(cx, |input, cx| input.set_value("127.0.0.1", window, cx));
         self.connection_port.update(cx, |input, cx| {
@@ -188,7 +262,7 @@ impl Render for SuperTableApp {
                                 .p_3()
                                 .gap_3()
                                 .child(editor::render_tabs(self, cx))
-                                .child(editor::render_sql_editor())
+                                .child(editor::render_sql_editor(self.locale))
                                 .child(results::render_panel(self, cx)),
                         ),
                 )

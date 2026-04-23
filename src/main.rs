@@ -1,5 +1,6 @@
 mod assets;
 mod data;
+mod i18n;
 mod palette;
 mod ui;
 
