@@ -41,6 +41,12 @@ src/
 cargo run
 ```
 
+Or with `just`:
+
+```bash
+just run
+```
+
 ### Hot Reload Build
 
 This project uses `watchexec` for the local edit-build-restart loop.
@@ -57,6 +63,12 @@ Then start the watcher from the project root:
 ./scripts/dev-watch.ps1
 ```
 
+Or use the cross-platform `just` entrypoint:
+
+```bash
+just watch
+```
+
 The watcher listens to:
 
 - `src`
@@ -71,6 +83,22 @@ and ignores `target/**` so rebuild output does not trigger another restart.
 
 ```bash
 cargo build
+```
+
+Or with `just`:
+
+```bash
+just build
+```
+
+### Task Runner
+
+This repository includes a cross-platform [just](https://github.com/casey/just) task file.
+
+Available commands:
+
+```bash
+just --list
 ```
 
 ## Notes
