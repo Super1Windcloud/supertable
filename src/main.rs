@@ -3,7 +3,7 @@ mod data;
 mod palette;
 mod ui;
 
-use gpui::{App, Application, Bounds, WindowBounds, WindowOptions, px, size};
+use gpui::{App, AppContext, Application, Bounds, WindowBounds, WindowOptions, px, size};
 use gpui_component::{Root, theme::{Theme, ThemeMode}};
 
 use ui::app::SuperTableApp;

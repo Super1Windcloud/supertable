@@ -1,5 +1,5 @@
 use gpui::{
-    Context, IntoElement, img, px, rgb, div, prelude::FluentBuilder as _,
+    Context, IntoElement, div, img, px, rgb, prelude::*,
 };
 use gpui_component::{
     button::{Button, ButtonVariants},

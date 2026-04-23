@@ -1,4 +1,4 @@
-use gpui::{Context, IntoElement, div, px, rgb, prelude::FluentBuilder as _};
+use gpui::{Context, IntoElement, div, px, rgb, prelude::*};
 use gpui_component::{
     badge::Badge,
     button::{Button, ButtonVariants},

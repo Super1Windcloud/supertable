@@ -1,5 +1,5 @@
 use gpui::{
-    Context, Entity, IntoElement, Render, Window, div, prelude::FluentBuilder as _, rgb,
+    AppContext, Context, Entity, IntoElement, Render, Window, div, prelude::*, rgb,
 };
 use gpui_component::{ActiveTheme, input::InputState};
 
