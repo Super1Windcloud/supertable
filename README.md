@@ -34,6 +34,15 @@ src/
 
 - Rust 1.94 or newer
 - A desktop environment supported by `gpui`
+- On macOS, a full Xcode installation with the Metal toolchain available to `xcrun`
+
+If `cargo build` fails with `cannot execute tool 'metal' due to missing Metal Toolchain`,
+install the missing component and make sure the active developer directory points at Xcode:
+
+```bash
+xcodebuild -downloadComponent MetalToolchain
+sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+```
 
 ### Run
 
