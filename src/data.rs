@@ -1,10 +1,5 @@
-pub const CONNECTIONS: [Connection; 5] = [
-    Connection::new("Production", "mysql://prod-us-east", "12 schemas", true, "PROD"),
-    Connection::new("Analytics", "postgres://warehouse-main", "8 schemas", false, "LIVE"),
-    Connection::new("Staging", "mysql://staging-shanghai", "11 schemas", false, "STAGE"),
-    Connection::new("Local Dev", "sqlite://workspace.db", "3 schemas", false, "LOCAL"),
-    Connection::new("Redis Cache", "redis://cache-eu-1", "6 dbs", false, "CACHE"),
-];
+use serde::{Deserialize, Serialize};
+use std::{env, fs, path::PathBuf};
 
 pub const SCHEMA_ITEMS: [SchemaItem; 8] = [
     SchemaItem::new("Tables", 23, true),
@@ -39,31 +34,39 @@ pub const ROWS: [ResultRow; 8] = [
     ResultRow::new("84714", "Orbit Studio", "paid", "$8,020.00", "4 items", "2026-04-23 15:20"),
 ];
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Connection {
-    pub name: &'static str,
-    pub endpoint: &'static str,
-    pub meta: &'static str,
+    pub name: String,
+    pub endpoint: String,
+    pub meta: String,
     pub active: bool,
-    pub badge: &'static str,
+    pub badge: String,
 }
 
-impl Connection {
-    pub const fn new(
-        name: &'static str,
-        endpoint: &'static str,
-        meta: &'static str,
-        active: bool,
-        badge: &'static str,
-    ) -> Self {
-        Self {
-            name,
-            endpoint,
-            meta,
-            active,
-            badge,
-        }
+pub fn load_connections() -> Vec<Connection> {
+    let path = connections_file_path();
+    let Ok(contents) = fs::read_to_string(path) else {
+        return Vec::new();
+    };
+
+    serde_json::from_str::<Vec<Connection>>(&contents).unwrap_or_default()
+}
+
+fn connections_file_path() -> PathBuf {
+    if let Some(appdata) = env::var_os("APPDATA") {
+        return PathBuf::from(appdata)
+            .join("SuperTable")
+            .join("connections.json");
     }
+
+    if let Some(home) = env::var_os("HOME") {
+        return PathBuf::from(home)
+            .join(".config")
+            .join("supertable")
+            .join("connections.json");
+    }
+
+    PathBuf::from("connections.json")
 }
 
 #[derive(Clone, Copy)]

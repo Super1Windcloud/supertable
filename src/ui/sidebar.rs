@@ -5,7 +5,7 @@ use gpui_component::{
 };
 
 use crate::{
-    data::{CONNECTIONS, SCHEMA_ITEMS},
+    data::SCHEMA_ITEMS,
     palette::{
         ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, DANGER, PANEL_BG, PANEL_MUTED, TEXT,
         TEXT_FAINT, TEXT_MUTED, WARNING,
@@ -14,7 +14,7 @@ use crate::{
 
 use super::app::SuperTableApp;
 
-pub fn render(_app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
         .w(px(286.))
         .h_full()
@@ -41,7 +41,7 @@ pub fn render(_app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl In
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_FAINT))
-                                .child("5 active endpoints"),
+                                .child(format!("{} active endpoints", app.connections.len())),
                         ),
                 )
                 .child(Button::new("add-conn").ghost().label("+ Add")),
@@ -53,7 +53,7 @@ pub fn render(_app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl In
                 .gap_2()
                 .flex()
                 .flex_col()
-                .children(CONNECTIONS.into_iter().map(|item| {
+                .children(app.connections.iter().map(|item| {
                     let bg = if item.active { rgb(PANEL_MUTED) } else { rgb(PANEL_BG) };
                     let border = if item.active { rgb(ACCENT) } else { rgb(BORDER_SOFT) };
                     let badge_color = if item.badge == "PROD" {
@@ -79,18 +79,18 @@ pub fn render(_app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl In
                                 .flex()
                                 .flex_col()
                                 .gap_0p5()
-                                .child(div().text_color(rgb(TEXT)).child(item.name))
+                                .child(div().text_color(rgb(TEXT)).child(item.name.clone()))
                                 .child(
                                     div()
                                         .text_size(px(12.))
                                         .text_color(rgb(TEXT_MUTED))
-                                        .child(item.endpoint),
+                                        .child(item.endpoint.clone()),
                                 )
                                 .child(
                                     div()
                                         .text_size(px(12.))
                                         .text_color(rgb(TEXT_FAINT))
-                                        .child(item.meta),
+                                        .child(item.meta.clone()),
                                 ),
                         )
                         .child(
@@ -102,7 +102,7 @@ pub fn render(_app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl In
                                     .bg(rgb(0x0F1318))
                                     .text_size(px(11.))
                                     .text_color(rgb(TEXT))
-                                    .child(item.badge),
+                                    .child(item.badge.clone()),
                             ),
                         )
                 })),

@@ -5430,6 +5430,8 @@ dependencies = [
  "gpui",
  "gpui-component",
  "image",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
