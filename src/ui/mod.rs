@@ -1,4 +1,5 @@
 pub mod app;
+mod connection_form;
 mod editor;
 mod onboarding;
 mod results;

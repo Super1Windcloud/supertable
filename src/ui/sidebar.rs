@@ -44,7 +44,9 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                 .child(format!("{} active endpoints", app.connections.len())),
                         ),
                 )
-                .child(Button::new("add-conn").ghost().label("+ Add")),
+                .child(Button::new("add-conn").ghost().label("+ Add").on_click(
+                    _cx.listener(|app, _, window, cx| app.open_connection_form(window, cx)),
+                )),
         )
         .child(
             div()
@@ -56,9 +58,10 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .children(app.connections.iter().map(|item| {
                     let bg = if item.active { rgb(PANEL_MUTED) } else { rgb(PANEL_BG) };
                     let border = if item.active { rgb(ACCENT) } else { rgb(BORDER_SOFT) };
-                    let badge_color = if item.badge == "PROD" {
+                    let badge = item.kind.badge();
+                    let badge_color = if badge == "MYSQL" {
                         rgb(DANGER)
-                    } else if item.badge == "LIVE" {
+                    } else if badge == "PG" || badge == "MONGO" {
                         rgb(BLUE)
                     } else {
                         rgb(WARNING)
@@ -84,13 +87,13 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                     div()
                                         .text_size(px(12.))
                                         .text_color(rgb(TEXT_MUTED))
-                                        .child(item.endpoint.clone()),
+                                        .child(item.endpoint()),
                                 )
                                 .child(
                                     div()
                                         .text_size(px(12.))
                                         .text_color(rgb(TEXT_FAINT))
-                                        .child(item.meta.clone()),
+                                        .child(item.meta()),
                                 ),
                         )
                         .child(
@@ -102,7 +105,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                     .bg(rgb(0x0F1318))
                                     .text_size(px(11.))
                                     .text_color(rgb(TEXT))
-                                    .child(item.badge.clone()),
+                                    .child(badge),
                             ),
                         )
                 })),

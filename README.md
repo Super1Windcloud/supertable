@@ -1,12 +1,12 @@
 # SuperTable
 
 SuperTable is a desktop database client prototype built with Rust, `gpui`, and `gpui-component`.
-It currently focuses on a TablePlus-inspired interface with a clean multi-panel layout for connections,
+It currently focuses on a clean SuperTable interface with a multi-panel layout for connections,
 SQL editing, and result browsing.
 
 ## Features
 
-- TablePlus-inspired desktop UI
+- SuperTable desktop UI
 - Built with `gpui` and `gpui-component`
 - Modularized Rust source structure
 - Custom application icon from `icon.png`
@@ -70,6 +70,12 @@ Then start the watcher from the project root:
 
 ```powershell
 ./scripts/dev-watch.ps1
+```
+
+On macOS and Linux:
+
+```bash
+sh ./scripts/dev-watch.sh
 ```
 
 Or use the cross-platform `just` entrypoint:

@@ -3,10 +3,10 @@ name = "supertable"
 version = "0.1.0"
 edition = "2024"
 authors = ["SuperWindcloud"]
-description = "A TablePlus-inspired desktop database client UI built with GPUI and gpui-component."
+description = "A SuperTable desktop database client UI built with GPUI and gpui-component."
 license = "MIT"
 readme = "README.md"
-keywords = ["gpui", "database", "desktop", "sql", "tableplus"]
+keywords = ["gpui", "database", "desktop", "sql", "supertable"]
 categories = ["gui", "database"]
 homepage = "https://super1windcloud/supertable"
 
