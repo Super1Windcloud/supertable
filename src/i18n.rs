@@ -75,13 +75,6 @@ impl Locale {
         }
     }
 
-    pub fn workspaces_label(self) -> &'static str {
-        match self {
-            Self::ZhCn => "3 个工作区",
-            Self::EnUs => "3 workspaces",
-        }
-    }
-
     pub fn open_source_badge(self) -> &'static str {
         match self {
             Self::ZhCn => "MIT 开源免费",
