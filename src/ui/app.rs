@@ -5,7 +5,7 @@ use gpui_component::{ActiveTheme, input::InputState};
 
 use crate::{
     data::{Connection, ConnectionKind, load_connections, save_connections},
-    palette::APP_BG,
+    palette::{APP_BG, APP_BG_ALT},
 };
 
 use super::{connection_form, editor, onboarding, results, sidebar, top_bar};
@@ -199,6 +199,7 @@ impl Render for SuperTableApp {
 
         div()
             .size_full()
+            .bg(rgb(APP_BG_ALT))
             .child(body)
             .when(self.show_connection_form, |this| {
                 this.child(connection_form::render(self, window, cx))

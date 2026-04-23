@@ -8,15 +8,16 @@ use gpui_component::{
 
 use crate::{
     assets::app_icon_path,
-    palette::{ACCENT, BORDER, PANEL_BG, TEXT, TEXT_FAINT},
+    palette::{ACCENT, ACCENT_SOFT, BORDER, PANEL_BG, PANEL_ELEVATED, TEXT, TEXT_FAINT, TEXT_MUTED},
 };
 
 use super::app::SuperTableApp;
 
 pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
-        .h(px(56.))
-        .px_4()
+        .h(px(72.))
+        .px_5()
+        .py_3()
         .flex()
         .items_center()
         .justify_between()
@@ -27,40 +28,63 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
             div()
                 .flex()
                 .items_center()
-                .gap_3()
+                .gap_4()
                 .child(
                     div()
-                        .size(px(32.))
-                        .rounded(px(9.))
-                        .bg(rgb(0x0C1512))
+                        .size(px(40.))
+                        .rounded(px(12.))
+                        .bg(rgb(ACCENT_SOFT))
                         .border_1()
                         .border_color(rgb(ACCENT))
                         .overflow_hidden()
-                        .child(img(app_icon_path()).size(px(32.))),
+                        .child(img(app_icon_path()).size(px(40.))),
                 )
                 .child(
                     div()
                         .flex()
                         .flex_col()
-                        .child(div().text_color(rgb(TEXT)).child("SuperTable"))
+                        .gap_0p5()
+                        .child(
+                            div()
+                                .text_size(px(18.))
+                                .text_color(rgb(TEXT))
+                                .child("SuperTable"),
+                        )
                         .child(
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_FAINT))
-                                .child("Unified database workspace"),
+                                .child("Elegant data workspace for query, inspect and connect"),
                         ),
                 ),
         )
         .child(
             div()
-                .w(px(420.))
+                .w(px(460.))
+                .rounded(px(14.))
+                .bg(rgb(PANEL_ELEVATED))
+                .border_1()
+                .border_color(rgb(BORDER))
+                .px_1()
                 .child(Input::new(&app.global_search).cleanable(true)),
         )
         .child(
             div()
                 .flex()
                 .items_center()
-                .gap_2()
+                .gap_3()
+                .child(
+                    div()
+                        .px_3()
+                        .py_2()
+                        .rounded(px(999.))
+                        .bg(rgb(PANEL_ELEVATED))
+                        .border_1()
+                        .border_color(rgb(BORDER))
+                        .text_size(px(12.))
+                        .text_color(rgb(TEXT_MUTED))
+                        .child("3 workspaces"),
+                )
                 .child(Button::new("new-query").primary().label("New Query"))
                 .child(
                     Button::new("import")
@@ -70,6 +94,6 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                             app.open_connection_form(window, cx)
                         })),
                 )
-                .child(Button::new("share").ghost().label("Share")),
+                .child(Button::new("share").ghost().label("Export")),
         )
 }
