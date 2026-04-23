@@ -20,7 +20,8 @@ mysql = "26.0.1"
 postgres = "0.19.10"
 rusqlite = { version = "0.32.1", features = ["bundled"] }
 redis = "0.32.7"
-mongodb = { version = "3.2.5", default-features = false, features = ["sync", "rustls-tls"] }
+mongodb = { version = "3.6.0", default-features = false, features = ["sync", "rustls-tls", "bson-3", "compat-3-3-0"] }
+tokio = { version = "1.52.1", features = ["rt-multi-thread"] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61", features = [

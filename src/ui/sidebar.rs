@@ -5,7 +5,6 @@ use gpui_component::{
 };
 
 use crate::{
-    data::SCHEMA_ITEMS,
     palette::{
         ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, DANGER, PANEL_ELEVATED, PANEL_MUTED,
         SIDEBAR_BG, SURFACE_SOFT, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
@@ -87,7 +86,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .gap_3()
                 .flex()
                 .flex_col()
-                .children(app.connections.iter().map(|item| {
+                .children(app.connections.iter().enumerate().map(|(index, item)| {
                     let bg = if item.active { rgb(PANEL_MUTED) } else { rgb(SURFACE_SOFT) };
                     let border = if item.active { rgb(ACCENT) } else { rgb(BORDER_SOFT) };
                     let badge = item.kind.badge();
@@ -109,6 +108,9 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                         .flex()
                         .items_center()
                         .justify_between()
+                        .on_mouse_down(gpui::MouseButton::Left, _cx.listener(move |app, _, _, cx| {
+                            app.activate_connection(index, cx);
+                        }))
                         .child(
                             div()
                                 .flex()
@@ -162,7 +164,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                     div()
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_FAINT))
-                        .child("warehouse.production / analytics"),
+                        .child(app.preview.source_label.clone()),
                 ),
         )
         .child(
@@ -171,7 +173,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .gap_2()
                 .flex()
                 .flex_col()
-                .children(SCHEMA_ITEMS.into_iter().map(|item| {
+                .children(app.preview.schema_items.iter().map(|item| {
                     let bg = if item.active { rgb(ACCENT_SOFT) } else { rgb(SIDEBAR_BG) };
                     let fg = if item.active { rgb(ACCENT) } else { rgb(TEXT_MUTED) };
                     div()
@@ -184,7 +186,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                         .flex()
                         .items_center()
                         .justify_between()
-                        .child(div().text_color(fg).child(locale.schema_item(item.name)))
+                        .child(div().text_color(fg).child(locale.schema_item(&item.name)))
                         .child(
                             div()
                                 .text_size(px(12.))

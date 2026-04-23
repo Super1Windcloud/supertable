@@ -4,12 +4,9 @@ use gpui_component::{
     tab::{Tab, TabBar},
 };
 
-use crate::{
-    data::{ROWS, ResultRow},
-    palette::{
-        ACCENT, ACCENT_SOFT, BLUE_SOFT, BORDER, BORDER_SOFT, DANGER, PANEL_ELEVATED,
-        PANEL_MUTED, ROW_ALT, ROW_SELECTED, TABLE_BG, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
-    },
+use crate::palette::{
+    BLUE_SOFT, BORDER, BORDER_SOFT, PANEL_ELEVATED, ROW_ALT, ROW_SELECTED, TABLE_BG, TEXT,
+    TEXT_FAINT, TEXT_MUTED,
 };
 
 use super::app::SuperTableApp;
@@ -24,15 +21,7 @@ pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> imp
         .overflow_hidden()
         .child(render_toolbar(app, cx))
         .child(render_table_header(app))
-        .child(
-            div()
-                .flex_1()
-                .children(
-                    ROWS.into_iter()
-                        .enumerate()
-                        .map(|(ix, row)| render_result_row(app, row, ix)),
-                ),
-        )
+        .child(render_rows(app))
 }
 
 fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
@@ -61,7 +50,7 @@ fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl 
                         .bg(rgb(BLUE_SOFT))
                         .text_size(px(11.))
                         .text_color(rgb(TEXT))
-                        .child(locale.sample()),
+                        .child(locale.live_source()),
                 )
                 .child(
                     div()
@@ -72,7 +61,7 @@ fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl 
                     div()
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_FAINT))
-                        .child(locale.result_stats()),
+                        .child(format!("{} • {}", app.preview.rows.len(), locale.result_stats())),
                 ),
         )
 }
@@ -95,8 +84,6 @@ fn render_tabs(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
 }
 
 fn render_table_header(app: &SuperTableApp) -> impl IntoElement {
-    let locale = app.locale;
-
     div()
         .h(px(42.))
         .px_4()
@@ -107,56 +94,68 @@ fn render_table_header(app: &SuperTableApp) -> impl IntoElement {
         .items_center()
         .text_size(px(12.))
         .text_color(rgb(TEXT_FAINT))
-        .child(div().w(px(86.)).child("ID"))
-        .child(div().w(px(220.)).child(locale.table_customer()))
-        .child(div().w(px(120.)).child(locale.table_status()))
-        .child(div().w(px(120.)).child(locale.table_amount()))
-        .child(div().w(px(120.)).child(locale.table_items()))
-        .child(div().flex_1().child(locale.table_updated_at()))
+        .children(app.preview.columns.iter().map(|column| {
+            div().w(px(180.)).truncate().child(column.clone())
+        }))
 }
 
-fn render_result_row(app: &SuperTableApp, row: ResultRow, ix: usize) -> impl IntoElement {
+fn render_rows(app: &SuperTableApp) -> impl IntoElement {
     let locale = app.locale;
-    let bg = if ix == 0 {
-        rgb(ROW_SELECTED)
-    } else if ix % 2 == 0 {
-        rgb(TABLE_BG)
-    } else {
-        rgb(ROW_ALT)
-    };
+
+    if let Some(error) = &app.preview_error {
+        return div()
+            .flex_1()
+            .p_4()
+            .child(div().text_color(rgb(TEXT)).child(locale.load_failed()))
+            .child(
+                div()
+                    .mt_2()
+                    .text_size(px(12.))
+                    .text_color(rgb(TEXT_MUTED))
+                    .child(error.clone()),
+            );
+    }
+
+    if app.preview.rows.is_empty() {
+        return div()
+            .flex_1()
+            .flex()
+            .items_center()
+            .justify_center()
+            .child(
+                div()
+                    .text_size(px(13.))
+                    .text_color(rgb(TEXT_MUTED))
+                    .child(locale.no_data()),
+            );
+    }
 
     div()
-        .h(px(48.))
-        .px_4()
-        .flex()
-        .items_center()
-        .bg(bg)
-        .border_b_1()
-        .border_color(rgb(BORDER_SOFT))
-        .text_color(rgb(TEXT))
-        .child(div().w(px(86.)).child(row.id))
-        .child(div().w(px(220.)).child(row.customer))
-        .child(div().w(px(120.)).child(render_status_pill(locale.status(row.status), row.status)))
-        .child(div().w(px(120.)).child(row.amount))
-        .child(div().w(px(120.)).text_color(rgb(TEXT_MUTED)).child(row.items))
-        .child(div().flex_1().text_color(rgb(TEXT_MUTED)).child(row.updated_at))
-}
+        .flex_1()
+        .children(app.preview.rows.iter().enumerate().map(|(ix, row)| {
+            let bg = if ix == 0 {
+                rgb(ROW_SELECTED)
+            } else if ix % 2 == 0 {
+                rgb(TABLE_BG)
+            } else {
+                rgb(ROW_ALT)
+            };
 
-fn render_status_pill(label: String, status: &str) -> impl IntoElement {
-    let (bg, fg) = match status {
-        "paid" => (rgb(ACCENT_SOFT), rgb(ACCENT)),
-        "refunded" => (rgb(0x362A18), rgb(WARNING)),
-        "pending" => (rgb(0x29364A), rgb(0xAACDFF)),
-        "cancelled" => (rgb(0x3A1D23), rgb(DANGER)),
-        _ => (rgb(PANEL_MUTED), rgb(TEXT_MUTED)),
-    };
-
-    div()
-        .px_2()
-        .py_1()
-        .rounded(px(999.))
-        .bg(bg)
-        .text_size(px(11.))
-        .text_color(fg)
-        .child(label)
+            div()
+                .h(px(48.))
+                .px_4()
+                .flex()
+                .items_center()
+                .bg(bg)
+                .border_b_1()
+                .border_color(rgb(BORDER_SOFT))
+                .text_color(rgb(TEXT))
+                .children(row.iter().map(|cell| {
+                    div()
+                        .w(px(180.))
+                        .truncate()
+                        .text_color(rgb(TEXT_MUTED))
+                        .child(cell.clone())
+                }))
+        }))
 }

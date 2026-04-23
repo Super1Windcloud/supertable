@@ -5,6 +5,7 @@ use gpui_component::{ActiveTheme, input::InputState};
 
 use crate::{
     data::{Connection, ConnectionKind, load_connections, save_connections},
+    db::{DataPreview, load_preview},
     i18n::Locale,
     palette::{APP_BG, APP_BG_ALT},
 };
@@ -14,6 +15,8 @@ use super::{connection_form, editor, onboarding, results, sidebar, top_bar};
 pub struct SuperTableApp {
     pub connections: Vec<Connection>,
     pub locale: Locale,
+    pub preview: DataPreview,
+    pub preview_error: Option<String>,
     pub grid_search: Entity<InputState>,
     pub connection_name: Entity<InputState>,
     pub connection_host: Entity<InputState>,
@@ -31,10 +34,14 @@ pub struct SuperTableApp {
 impl SuperTableApp {
     pub fn new(window: &mut Window, cx: &mut Context<SuperTableApp>) -> Self {
         let locale = Locale::ZhCn;
+        let connections = load_connections();
+        let (preview, preview_error) = preview_for_active_connection(&connections);
 
         Self {
-            connections: load_connections(),
+            connections,
             locale,
+            preview,
+            preview_error,
             grid_search: Self::build_input(window, cx, locale.grid_search_placeholder(), ""),
             connection_name: Self::build_input(
                 window,
@@ -182,6 +189,10 @@ impl SuperTableApp {
             .ok()
             .unwrap_or(kind.default_port());
 
+        for item in &mut self.connections {
+            item.active = false;
+        }
+
         let connection = Connection {
             kind,
             name: name.trim().to_string(),
@@ -191,14 +202,30 @@ impl SuperTableApp {
             username: self.connection_username.read(cx).value().to_string(),
             password: self.connection_password.read(cx).value().to_string(),
             file_path: self.connection_file_path.read(cx).value().to_string(),
-            active: self.connections.is_empty(),
+            active: true,
         };
 
         self.connections.push(connection);
         let _ = save_connections(&self.connections);
+        self.reload_preview();
         self.close_connection_form();
         self.reset_connection_form(window, cx);
         cx.notify();
+    }
+
+    pub fn activate_connection(&mut self, index: usize, cx: &mut Context<Self>) {
+        for (current_index, item) in self.connections.iter_mut().enumerate() {
+            item.active = current_index == index;
+        }
+        let _ = save_connections(&self.connections);
+        self.reload_preview();
+        cx.notify();
+    }
+
+    fn reload_preview(&mut self) {
+        let (preview, preview_error) = preview_for_active_connection(&self.connections);
+        self.preview = preview;
+        self.preview_error = preview_error;
     }
 
     fn reset_connection_form(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -243,7 +270,7 @@ impl Render for SuperTableApp {
                                 .p_3()
                                 .gap_3()
                                 .child(editor::render_tabs(self, cx))
-                                .child(editor::render_sql_editor(self.locale))
+                                .child(editor::render_sql_editor(self))
                                 .child(results::render_panel(self, cx)),
                         ),
                 )
@@ -259,5 +286,22 @@ impl Render for SuperTableApp {
             .when(self.show_connection_form, |this| {
                 this.child(connection_form::render(self, window, cx))
             })
+    }
+}
+
+fn preview_for_active_connection(connections: &[Connection]) -> (DataPreview, Option<String>) {
+    let Some(connection) = connections.iter().find(|item| item.active) else {
+        return (DataPreview::default(), None);
+    };
+
+    match load_preview(connection) {
+        Ok(preview) => (preview, None),
+        Err(err) => (
+            DataPreview {
+                source_label: connection.endpoint(),
+                ..DataPreview::default()
+            },
+            Some(err.to_string()),
+        ),
     }
 }

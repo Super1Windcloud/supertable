@@ -138,17 +138,17 @@ impl Locale {
         }
     }
 
-    pub fn schema_item(self, label: &'static str) -> &'static str {
+    pub fn schema_item(self, label: &str) -> String {
         match (self, label) {
-            (Self::ZhCn, "Tables") => "表",
-            (Self::ZhCn, "Views") => "视图",
-            (Self::ZhCn, "Functions") => "函数",
-            (Self::ZhCn, "Triggers") => "触发器",
-            (Self::ZhCn, "Users") => "用户",
-            (Self::ZhCn, "Migrations") => "迁移",
-            (Self::ZhCn, "Favorites") => "收藏",
-            (Self::ZhCn, "Pins") => "置顶",
-            _ => label,
+            (Self::ZhCn, "Tables") => "表".to_string(),
+            (Self::ZhCn, "Views") => "视图".to_string(),
+            (Self::ZhCn, "Functions") => "函数".to_string(),
+            (Self::ZhCn, "Triggers") => "触发器".to_string(),
+            (Self::ZhCn, "Users") => "用户".to_string(),
+            (Self::ZhCn, "Migrations") => "迁移".to_string(),
+            (Self::ZhCn, "Favorites") => "收藏".to_string(),
+            (Self::ZhCn, "Pins") => "置顶".to_string(),
+            _ => label.to_string(),
         }
     }
 

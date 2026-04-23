@@ -4,13 +4,9 @@ use gpui_component::{
     tab::{Tab, TabBar},
 };
 
-use crate::{
-    data::QUERY_LINES,
-    i18n::Locale,
-    palette::{
-        ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, PANEL_BG, PANEL_ELEVATED, SURFACE_SOFT,
-        TABLE_BG, TEXT, TEXT_FAINT, TEXT_MUTED,
-    },
+use crate::palette::{
+    ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, PANEL_BG, PANEL_ELEVATED, SURFACE_SOFT,
+    TABLE_BG, TEXT, TEXT_FAINT, TEXT_MUTED,
 };
 
 use super::app::SuperTableApp;
@@ -33,13 +29,20 @@ pub fn render_tabs(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl
                         cx.notify();
                     });
                 })
-                .child(Tab::new().label("orders.sql"))
-                .child(Tab::new().label("customers.sql"))
-                .child(Tab::new().label("insights.sql")),
+                .child(Tab::new().label("source.sql"))
+                .child(Tab::new().label("inspect.sql"))
+                .child(Tab::new().label("notes.sql")),
         )
 }
 
-pub fn render_sql_editor(locale: Locale) -> impl IntoElement {
+pub fn render_sql_editor(app: &SuperTableApp) -> impl IntoElement {
+    let locale = app.locale;
+    let query_lines = if app.preview.query_lines.is_empty() {
+        vec!["-- Connect to a database source to load query preview".to_string()]
+    } else {
+        app.preview.query_lines.clone()
+    };
+
     div()
         .flex_1()
         .rounded(px(18.))
@@ -102,7 +105,7 @@ pub fn render_sql_editor(locale: Locale) -> impl IntoElement {
                         .border_r_1()
                         .border_color(rgb(BORDER_SOFT))
                         .pt_4()
-                        .children((1..=QUERY_LINES.len()).map(|line| {
+                        .children((1..=query_lines.len()).map(|line| {
                             div()
                                 .h(px(24.))
                                 .pr_3()
@@ -133,14 +136,12 @@ pub fn render_sql_editor(locale: Locale) -> impl IntoElement {
                                     div()
                                         .text_size(px(12.))
                                         .text_color(rgb(TEXT_FAINT))
-                                        .child("warehouse.orders"),
+                                        .child(app.preview.source_label.clone()),
                                 ),
                         )
-                        .children(QUERY_LINES.into_iter().enumerate().map(|(ix, line)| {
-                            let color = if ix == 0 || ix == 6 {
+                        .children(query_lines.into_iter().enumerate().map(|(ix, line)| {
+                            let color = if ix == 0 {
                                 rgb(BLUE)
-                            } else if line.contains("paid") || line.contains("refunded") {
-                                rgb(ACCENT)
                             } else {
                                 rgb(TEXT)
                             };
