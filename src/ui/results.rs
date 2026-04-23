@@ -1,0 +1,146 @@
+use gpui::{Context, IntoElement, div, px, rgb, prelude::FluentBuilder as _};
+use gpui_component::{
+    input::Input,
+    tab::{Tab, TabBar},
+};
+
+use crate::{
+    data::{ROWS, ResultRow},
+    palette::{
+        ACCENT, ACCENT_SOFT, BORDER, BORDER_SOFT, DANGER, PANEL_BG, PANEL_ELEVATED, PANEL_MUTED,
+        ROW_ALT, ROW_SELECTED, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
+    },
+};
+
+use super::app::SuperTableApp;
+
+pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    div()
+        .flex_1()
+        .rounded(px(14.))
+        .bg(rgb(PANEL_BG))
+        .border_1()
+        .border_color(rgb(BORDER))
+        .overflow_hidden()
+        .child(render_toolbar(app, cx))
+        .child(render_table_header())
+        .child(
+            div()
+                .flex_1()
+                .children(
+                    ROWS.into_iter()
+                        .enumerate()
+                        .map(|(ix, row)| render_result_row(row, ix)),
+                ),
+        )
+}
+
+fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    div()
+        .h(px(52.))
+        .px_4()
+        .flex()
+        .items_center()
+        .justify_between()
+        .bg(rgb(PANEL_ELEVATED))
+        .border_b_1()
+        .border_color(rgb(BORDER_SOFT))
+        .child(render_tabs(app, cx))
+        .child(
+            div()
+                .flex()
+                .items_center()
+                .gap_3()
+                .child(
+                    div()
+                        .w(px(240.))
+                        .child(Input::new(&app.grid_search).cleanable(true)),
+                )
+                .child(
+                    div()
+                        .text_size(px(12.))
+                        .text_color(rgb(TEXT_FAINT))
+                        .child("234 rows • 18 ms"),
+                ),
+        )
+}
+
+fn render_tabs(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let entity = cx.entity().clone();
+    TabBar::new("result-tabs")
+        .pill()
+        .selected_index(app.selected_result_tab)
+        .on_click(move |ix, _, cx| {
+            entity.update(cx, |this, cx| {
+                this.selected_result_tab = *ix;
+                cx.notify();
+            });
+        })
+        .child(Tab::new().label("Data"))
+        .child(Tab::new().label("Structure"))
+        .child(Tab::new().label("Console"))
+}
+
+fn render_table_header() -> impl IntoElement {
+    div()
+        .h(px(42.))
+        .px_3()
+        .bg(rgb(PANEL_ELEVATED))
+        .border_b_1()
+        .border_color(rgb(BORDER_SOFT))
+        .flex()
+        .items_center()
+        .text_size(px(12.))
+        .text_color(rgb(TEXT_FAINT))
+        .child(div().w(px(86.)).child("ID"))
+        .child(div().w(px(220.)).child("CUSTOMER"))
+        .child(div().w(px(120.)).child("STATUS"))
+        .child(div().w(px(120.)).child("AMOUNT"))
+        .child(div().w(px(120.)).child("ITEMS"))
+        .child(div().flex_1().child("UPDATED AT"))
+}
+
+fn render_result_row(row: ResultRow, ix: usize) -> impl IntoElement {
+    let bg = if ix == 0 {
+        rgb(ROW_SELECTED)
+    } else if ix % 2 == 0 {
+        rgb(PANEL_BG)
+    } else {
+        rgb(ROW_ALT)
+    };
+
+    div()
+        .h(px(46.))
+        .px_3()
+        .flex()
+        .items_center()
+        .bg(bg)
+        .border_b_1()
+        .border_color(rgb(BORDER_SOFT))
+        .text_color(rgb(TEXT))
+        .child(div().w(px(86.)).child(row.id))
+        .child(div().w(px(220.)).child(row.customer))
+        .child(div().w(px(120.)).child(render_status_pill(row.status)))
+        .child(div().w(px(120.)).child(row.amount))
+        .child(div().w(px(120.)).text_color(rgb(TEXT_MUTED)).child(row.items))
+        .child(div().flex_1().text_color(rgb(TEXT_MUTED)).child(row.updated_at))
+}
+
+fn render_status_pill(status: &str) -> impl IntoElement {
+    let (bg, fg) = match status {
+        "paid" => (rgb(ACCENT_SOFT), rgb(ACCENT)),
+        "refunded" => (rgb(0x362A18), rgb(WARNING)),
+        "pending" => (rgb(0x2B2338), rgb(0xC291FF)),
+        "cancelled" => (rgb(0x3A1D23), rgb(DANGER)),
+        _ => (rgb(PANEL_MUTED), rgb(TEXT_MUTED)),
+    };
+
+    div()
+        .px_2()
+        .py_1()
+        .rounded(px(999.))
+        .bg(bg)
+        .text_size(px(11.))
+        .text_color(fg)
+        .child(status.to_owned())
+}

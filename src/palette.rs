@@ -1,0 +1,16 @@
+pub const APP_BG: u32 = 0x111317;
+pub const PANEL_BG: u32 = 0x171A1F;
+pub const PANEL_ELEVATED: u32 = 0x1C2027;
+pub const PANEL_MUTED: u32 = 0x20252D;
+pub const BORDER: u32 = 0x2A313B;
+pub const BORDER_SOFT: u32 = 0x222830;
+pub const TEXT: u32 = 0xE8EDF3;
+pub const TEXT_MUTED: u32 = 0x97A3B6;
+pub const TEXT_FAINT: u32 = 0x667182;
+pub const ACCENT: u32 = 0x2BC48A;
+pub const ACCENT_SOFT: u32 = 0x173A31;
+pub const WARNING: u32 = 0xF4B84A;
+pub const DANGER: u32 = 0xE86868;
+pub const BLUE: u32 = 0x4DA3FF;
+pub const ROW_SELECTED: u32 = 0x162431;
+pub const ROW_ALT: u32 = 0x141920;
