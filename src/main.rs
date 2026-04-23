@@ -53,7 +53,7 @@ fn main() {
 
 #[cfg(target_os = "windows")]
 fn refresh_windows_taskbar_icon(window: &gpui::Window) {
-    let Ok(handle) = window.window_handle() else {
+    let Ok(handle) = HasWindowHandle::window_handle(window) else {
         return;
     };
 
