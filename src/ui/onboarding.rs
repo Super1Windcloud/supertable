@@ -6,8 +6,8 @@ use gpui_component::{
 use crate::{
     assets::app_icon_path,
     palette::{
-        ACCENT, ACCENT_SOFT, APP_BG, APP_BG_ALT, BORDER, BORDER_SOFT, PANEL_BG, PANEL_ELEVATED,
-        PANEL_MUTED, SURFACE_SOFT, TEXT, TEXT_FAINT, TEXT_MUTED,
+        ACCENT, ACCENT_SOFT, APP_BG, APP_BG_ALT, BORDER, PANEL_BG, PANEL_ELEVATED, PANEL_MUTED,
+        SURFACE_SOFT, TEXT, TEXT_FAINT, TEXT_MUTED,
     },
 };
 
@@ -88,7 +88,13 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                                 app.open_connection_form(window, cx)
                                             }),
                                         ))
-                                        .child(action_row(locale.import_sample_data())),
+                                        .child(
+                                            action_row(locale.import_database()).on_click(
+                                                _cx.listener(|app, _, window, cx| {
+                                                    app.open_connection_form(window, cx)
+                                                }),
+                                            ),
+                                        ),
                                 ),
                         ),
                 ),
@@ -167,7 +173,7 @@ fn render_welcome_rail(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> 
                     locale.info_focused_workflow_title(),
                     locale.info_focused_workflow_body(),
                 ))
-                .child(action_row(locale.create_connection_title()).on_click(
+                .child(action_row(locale.import_database_title()).on_click(
                     cx.listener(|app, _, window, cx| {
                         app.open_connection_form(window, cx)
                     }),

@@ -112,15 +112,15 @@ impl Locale {
 
     pub fn sync_healthy(self) -> &'static str {
         match self {
-            Self::ZhCn => "完全开源，无付费墙",
-            Self::EnUs => "Fully open source, no paywall",
+            Self::ZhCn => "已连接后从真实数据库读取",
+            Self::EnUs => "Reads directly from live database sources",
         }
     }
 
     pub fn latency_hint(self) -> &'static str {
         match self {
-            Self::ZhCn => "当前版本默认提供完整功能，可自由使用与修改",
-            Self::EnUs => "The current build ships with the full feature set for free use and modification",
+            Self::ZhCn => "支持 MySQL、PostgreSQL、Redis、MongoDB、SQLite 驱动",
+            Self::EnUs => "Includes MySQL, PostgreSQL, Redis, MongoDB and SQLite drivers",
         }
     }
 
@@ -173,10 +173,10 @@ impl Locale {
         }
     }
 
-    pub fn import_sample_data(self) -> &'static str {
+    pub fn import_database(self) -> &'static str {
         match self {
-            Self::ZhCn => "导入示例数据",
-            Self::EnUs => "Import Sample Data",
+            Self::ZhCn => "导入数据库",
+            Self::EnUs => "Import Database",
         }
     }
 
@@ -203,8 +203,8 @@ impl Locale {
 
     pub fn info_fast_setup_body(self) -> &'static str {
         match self {
-            Self::ZhCn => "支持 MySQL / PostgreSQL / Redis / MongoDB / SQLite",
-            Self::EnUs => "MySQL / PostgreSQL / Redis / MongoDB / SQLite",
+            Self::ZhCn => "支持导入 MySQL / PostgreSQL / Redis / MongoDB / SQLite",
+            Self::EnUs => "Supports importing MySQL / PostgreSQL / Redis / MongoDB / SQLite",
         }
     }
 
@@ -226,6 +226,13 @@ impl Locale {
         match self {
             Self::ZhCn => "创建连接",
             Self::EnUs => "Create Connection",
+        }
+    }
+
+    pub fn import_database_title(self) -> &'static str {
+        match self {
+            Self::ZhCn => "导入数据库",
+            Self::EnUs => "Import Database",
         }
     }
 
@@ -378,15 +385,36 @@ impl Locale {
 
     pub fn sample(self) -> &'static str {
         match self {
-            Self::ZhCn => "示例",
-            Self::EnUs => "Sample",
+            Self::ZhCn => "实时",
+            Self::EnUs => "Live",
         }
     }
 
     pub fn result_stats(self) -> &'static str {
         match self {
-            Self::ZhCn => "234 行 • 18 ms",
-            Self::EnUs => "234 rows • 18 ms",
+            Self::ZhCn => "数据库源返回",
+            Self::EnUs => "Returned from source",
+        }
+    }
+
+    pub fn live_source(self) -> &'static str {
+        match self {
+            Self::ZhCn => "实时数据源",
+            Self::EnUs => "Live source",
+        }
+    }
+
+    pub fn no_data(self) -> &'static str {
+        match self {
+            Self::ZhCn => "当前数据源没有可展示的数据",
+            Self::EnUs => "No data available for the current source",
+        }
+    }
+
+    pub fn load_failed(self) -> &'static str {
+        match self {
+            Self::ZhCn => "读取失败",
+            Self::EnUs => "Load failed",
         }
     }
 
