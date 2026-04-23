@@ -26,24 +26,10 @@ impl Locale {
         }
     }
 
-    pub fn global_search_placeholder(self) -> &'static str {
-        match self {
-            Self::ZhCn => "搜索连接、表或片段",
-            Self::EnUs => "Search connections, tables, snippets",
-        }
-    }
-
     pub fn grid_search_placeholder(self) -> &'static str {
         match self {
             Self::ZhCn => "筛选结果中的 234 行",
             Self::EnUs => "Filter 234 rows in result set",
-        }
-    }
-
-    pub fn onboarding_search_placeholder(self) -> &'static str {
-        match self {
-            Self::ZhCn => "搜索连接... (Ctrl F)",
-            Self::EnUs => "Search connections... (Ctrl F)",
         }
     }
 

@@ -3,7 +3,6 @@ use gpui::{
 };
 use gpui_component::{
     button::{Button, ButtonVariants},
-    input::Input,
 };
 
 use crate::{
@@ -59,16 +58,6 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                 .child(locale.app_tagline()),
                         ),
                 ),
-        )
-        .child(
-            div()
-                .w(px(460.))
-                .rounded(px(14.))
-                .bg(rgb(PANEL_ELEVATED))
-                .border_1()
-                .border_color(rgb(BORDER))
-                .px_1()
-                .child(Input::new(&app.global_search).cleanable(true)),
         )
         .child(
             div()

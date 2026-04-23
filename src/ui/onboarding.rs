@@ -1,8 +1,6 @@
 use gpui::{Context, IntoElement, div, img, px, rgb, prelude::*};
 use gpui_component::{
-    IconName,
     button::{Button, ButtonVariants},
-    input::Input,
 };
 
 use crate::{
@@ -28,7 +26,6 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .flex_1()
                 .flex()
                 .flex_col()
-                .child(render_search_bar(app, _cx))
                 .child(
                     div()
                         .flex_1()
@@ -113,6 +110,18 @@ fn render_welcome_rail(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> 
         .flex_col()
         .child(
             div()
+                .flex()
+                .justify_end()
+                .child(
+                    Button::new("toggle-locale")
+                        .ghost()
+                        .label(locale.switch_label())
+                        .on_click(cx.listener(|app, _, window, cx| app.toggle_locale(window, cx))),
+                ),
+        )
+        .child(
+            div()
+                .mt_4()
                 .size(px(84.))
                 .rounded(px(24.))
                 .bg(rgb(APP_BG_ALT))
@@ -163,36 +172,6 @@ fn render_welcome_rail(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> 
                         app.open_connection_form(window, cx)
                     }),
                 )),
-        )
-}
-
-fn render_search_bar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
-    let locale = app.locale;
-
-    div()
-        .h(px(72.))
-        .px_5()
-        .flex()
-        .items_center()
-        .gap_3()
-        .border_b_1()
-        .border_color(rgb(BORDER_SOFT))
-        .child(
-            Button::new("toggle-locale")
-                .ghost()
-                .label(locale.switch_label())
-                .on_click(cx.listener(|app, _, window, cx| app.toggle_locale(window, cx))),
-        )
-        .child(
-            Button::new("create-connection")
-                .ghost()
-                .icon(IconName::Plus)
-                .on_click(cx.listener(|app, _, window, cx| app.open_connection_form(window, cx))),
-        )
-        .child(
-            div()
-                .flex_1()
-                .child(Input::new(&app.onboarding_search).prefix(IconName::Search)),
         )
 }
 

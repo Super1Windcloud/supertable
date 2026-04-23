@@ -14,9 +14,7 @@ use super::{connection_form, editor, onboarding, results, sidebar, top_bar};
 pub struct SuperTableApp {
     pub connections: Vec<Connection>,
     pub locale: Locale,
-    pub global_search: Entity<InputState>,
     pub grid_search: Entity<InputState>,
-    pub onboarding_search: Entity<InputState>,
     pub connection_name: Entity<InputState>,
     pub connection_host: Entity<InputState>,
     pub connection_port: Entity<InputState>,
@@ -37,14 +35,7 @@ impl SuperTableApp {
         Self {
             connections: load_connections(),
             locale,
-            global_search: Self::build_input(window, cx, locale.global_search_placeholder(), ""),
             grid_search: Self::build_input(window, cx, locale.grid_search_placeholder(), ""),
-            onboarding_search: Self::build_input(
-                window,
-                cx,
-                locale.onboarding_search_placeholder(),
-                "",
-            ),
             connection_name: Self::build_input(
                 window,
                 cx,
@@ -97,9 +88,7 @@ impl SuperTableApp {
 
     fn relocalize_inputs(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let locale = self.locale;
-        let global_search = self.global_search.read(cx).value().to_string();
         let grid_search = self.grid_search.read(cx).value().to_string();
-        let onboarding_search = self.onboarding_search.read(cx).value().to_string();
         let connection_name = self.connection_name.read(cx).value().to_string();
         let connection_host = self.connection_host.read(cx).value().to_string();
         let connection_port = self.connection_port.read(cx).value().to_string();
@@ -108,16 +97,8 @@ impl SuperTableApp {
         let connection_password = self.connection_password.read(cx).value().to_string();
         let connection_file_path = self.connection_file_path.read(cx).value().to_string();
 
-        self.global_search =
-            Self::build_input(window, cx, locale.global_search_placeholder(), &global_search);
         self.grid_search =
             Self::build_input(window, cx, locale.grid_search_placeholder(), &grid_search);
-        self.onboarding_search = Self::build_input(
-            window,
-            cx,
-            locale.onboarding_search_placeholder(),
-            &onboarding_search,
-        );
         self.connection_name = Self::build_input(
             window,
             cx,
