@@ -1,5 +1,7 @@
 pub const APP_BG: u32 = 0x07111A;
 pub const APP_BG_ALT: u32 = 0x0B1722;
+pub const SIDEBAR_BG: u32 = 0x252525;
+pub const TABLE_BG: u32 = 0x1E1E1E;
 pub const PANEL_BG: u32 = 0x0F1D2B;
 pub const PANEL_ELEVATED: u32 = 0x132435;
 pub const PANEL_MUTED: u32 = 0x193042;

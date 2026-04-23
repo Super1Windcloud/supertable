@@ -16,11 +16,13 @@ use crate::{
 use super::app::SuperTableApp;
 
 pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .size_full()
         .bg(rgb(APP_BG))
         .flex()
-        .child(render_welcome_rail(_cx))
+        .child(render_welcome_rail(app, _cx))
         .child(
             div()
                 .flex_1()
@@ -53,38 +55,40 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                         .bg(rgb(ACCENT_SOFT))
                                         .text_size(px(12.))
                                         .text_color(rgb(ACCENT))
-                                        .child("Get Started"),
+                                        .child(locale.get_started()),
                                 )
                                 .child(
                                     div()
                                         .text_size(px(30.))
                                         .text_color(rgb(TEXT))
-                                        .child("建立你的第一个数据工作区"),
+                                        .child(locale.first_workspace()),
                                 )
                                 .child(
                                     div()
                                         .text_size(px(13.))
                                         .text_color(rgb(TEXT_FAINT))
-                                        .child("添加连接后，你可以立即浏览结构、编写 SQL，并在统一结果面板中查看输出。"),
+                                        .child(locale.onboarding_intro()),
                                 )
                                 .child(
                                     div()
                                         .mt_2()
                                         .flex()
                                         .gap_3()
-                                        .child(action_row("创建连接...").on_click(
+                                        .child(action_row(locale.create_connection_title()).on_click(
                                             _cx.listener(|app, _, window, cx| {
                                                 app.open_connection_form(window, cx)
                                             }),
                                         ))
-                                        .child(action_row("导入示例数据")),
+                                        .child(action_row(locale.import_sample_data())),
                                 ),
                         ),
                 ),
         )
 }
 
-fn render_welcome_rail(cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+fn render_welcome_rail(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .w(px(360.))
         .h_full()
@@ -121,14 +125,14 @@ fn render_welcome_rail(cx: &mut Context<SuperTableApp>) -> impl IntoElement {
                 .mt_1()
                 .text_size(px(14.))
                 .text_color(rgb(TEXT_MUTED))
-                .child(format!("版本 {}", env!("CARGO_PKG_VERSION"))),
+                .child(format!("{} {}", locale.version(), env!("CARGO_PKG_VERSION"))),
         )
         .child(
             div()
                 .mt_6()
                 .text_size(px(15.))
                 .text_color(rgb(TEXT_FAINT))
-                .child("为多种数据库连接、探索与查询打造的现代工作台"),
+                .child(locale.welcome_copy()),
         )
         .child(
             div()
@@ -137,15 +141,22 @@ fn render_welcome_rail(cx: &mut Context<SuperTableApp>) -> impl IntoElement {
                 .flex()
                 .flex_col()
                 .gap_3()
-                .child(info_card("Fast setup", "MySQL / PostgreSQL / Redis / MongoDB / SQLite"))
-                .child(info_card("Focused workflow", "Connections, editor and results in one calm layout"))
-                .child(action_row("创建连接...").on_click(cx.listener(|app, _, window, cx| {
-                    app.open_connection_form(window, cx)
-                }))),
+                .child(info_card(locale.info_fast_setup_title(), locale.info_fast_setup_body()))
+                .child(info_card(
+                    locale.info_focused_workflow_title(),
+                    locale.info_focused_workflow_body(),
+                ))
+                .child(action_row(locale.create_connection_title()).on_click(
+                    cx.listener(|app, _, window, cx| {
+                        app.open_connection_form(window, cx)
+                    }),
+                )),
         )
 }
 
 fn render_search_bar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .h(px(72.))
         .px_5()
@@ -154,6 +165,12 @@ fn render_search_bar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> im
         .gap_3()
         .border_b_1()
         .border_color(rgb(BORDER_SOFT))
+        .child(
+            Button::new("toggle-locale")
+                .ghost()
+                .label(locale.switch_label())
+                .on_click(cx.listener(|app, _, window, cx| app.toggle_locale(window, cx))),
+        )
         .child(
             Button::new("create-connection")
                 .ghost()

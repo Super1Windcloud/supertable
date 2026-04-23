@@ -14,6 +14,8 @@ use crate::{
 use super::app::SuperTableApp;
 
 pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .h(px(72.))
         .px_5()
@@ -54,7 +56,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_FAINT))
-                                .child("Elegant data workspace for query, inspect and connect"),
+                                .child(locale.app_tagline()),
                         ),
                 ),
         )
@@ -74,6 +76,14 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .items_center()
                 .gap_3()
                 .child(
+                    Button::new("toggle-locale")
+                        .ghost()
+                        .label(locale.switch_label())
+                        .on_click(_cx.listener(|app, _, window, cx| {
+                            app.toggle_locale(window, cx)
+                        })),
+                )
+                .child(
                     div()
                         .px_3()
                         .py_2()
@@ -83,17 +93,17 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                         .border_color(rgb(BORDER))
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_MUTED))
-                        .child("3 workspaces"),
+                        .child(locale.workspaces_label()),
                 )
-                .child(Button::new("new-query").primary().label("New Query"))
+                .child(Button::new("new-query").primary().label(locale.new_query()))
                 .child(
                     Button::new("import")
                         .ghost()
-                        .label("Add Connection")
+                        .label(locale.add_connection())
                         .on_click(_cx.listener(|app, _, window, cx| {
                             app.open_connection_form(window, cx)
                         })),
                 )
-                .child(Button::new("share").ghost().label("Export")),
+                .child(Button::new("share").ghost().label(locale.export())),
         )
 }

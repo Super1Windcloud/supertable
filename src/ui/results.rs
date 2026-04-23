@@ -7,8 +7,8 @@ use gpui_component::{
 use crate::{
     data::{ROWS, ResultRow},
     palette::{
-        ACCENT, ACCENT_SOFT, BLUE_SOFT, BORDER, BORDER_SOFT, DANGER, PANEL_BG, PANEL_ELEVATED,
-        PANEL_MUTED, ROW_ALT, ROW_SELECTED, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
+        ACCENT, ACCENT_SOFT, BLUE_SOFT, BORDER, BORDER_SOFT, DANGER, PANEL_ELEVATED,
+        PANEL_MUTED, ROW_ALT, ROW_SELECTED, TABLE_BG, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
     },
 };
 
@@ -18,24 +18,26 @@ pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> imp
     div()
         .flex_1()
         .rounded(px(18.))
-        .bg(rgb(PANEL_BG))
+        .bg(rgb(TABLE_BG))
         .border_1()
         .border_color(rgb(BORDER))
         .overflow_hidden()
         .child(render_toolbar(app, cx))
-        .child(render_table_header())
+        .child(render_table_header(app))
         .child(
             div()
                 .flex_1()
                 .children(
                     ROWS.into_iter()
                         .enumerate()
-                        .map(|(ix, row)| render_result_row(row, ix)),
+                        .map(|(ix, row)| render_result_row(app, row, ix)),
                 ),
         )
 }
 
 fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .h(px(58.))
         .px_4()
@@ -59,7 +61,7 @@ fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl 
                         .bg(rgb(BLUE_SOFT))
                         .text_size(px(11.))
                         .text_color(rgb(TEXT))
-                        .child("Sample"),
+                        .child(locale.sample()),
                 )
                 .child(
                     div()
@@ -70,12 +72,13 @@ fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl 
                     div()
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_FAINT))
-                        .child("234 rows • 18 ms"),
+                        .child(locale.result_stats()),
                 ),
         )
 }
 
 fn render_tabs(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
     let entity = cx.entity().clone();
     TabBar::new("result-tabs")
         .pill()
@@ -86,12 +89,14 @@ fn render_tabs(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
                 cx.notify();
             });
         })
-        .child(Tab::new().label("Data"))
-        .child(Tab::new().label("Structure"))
-        .child(Tab::new().label("Console"))
+        .child(Tab::new().label(locale.data_tab()))
+        .child(Tab::new().label(locale.structure_tab()))
+        .child(Tab::new().label(locale.console_tab()))
 }
 
-fn render_table_header() -> impl IntoElement {
+fn render_table_header(app: &SuperTableApp) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .h(px(42.))
         .px_4()
@@ -103,18 +108,19 @@ fn render_table_header() -> impl IntoElement {
         .text_size(px(12.))
         .text_color(rgb(TEXT_FAINT))
         .child(div().w(px(86.)).child("ID"))
-        .child(div().w(px(220.)).child("CUSTOMER"))
-        .child(div().w(px(120.)).child("STATUS"))
-        .child(div().w(px(120.)).child("AMOUNT"))
-        .child(div().w(px(120.)).child("ITEMS"))
-        .child(div().flex_1().child("UPDATED AT"))
+        .child(div().w(px(220.)).child(locale.table_customer()))
+        .child(div().w(px(120.)).child(locale.table_status()))
+        .child(div().w(px(120.)).child(locale.table_amount()))
+        .child(div().w(px(120.)).child(locale.table_items()))
+        .child(div().flex_1().child(locale.table_updated_at()))
 }
 
-fn render_result_row(row: ResultRow, ix: usize) -> impl IntoElement {
+fn render_result_row(app: &SuperTableApp, row: ResultRow, ix: usize) -> impl IntoElement {
+    let locale = app.locale;
     let bg = if ix == 0 {
         rgb(ROW_SELECTED)
     } else if ix % 2 == 0 {
-        rgb(PANEL_BG)
+        rgb(TABLE_BG)
     } else {
         rgb(ROW_ALT)
     };
@@ -130,13 +136,13 @@ fn render_result_row(row: ResultRow, ix: usize) -> impl IntoElement {
         .text_color(rgb(TEXT))
         .child(div().w(px(86.)).child(row.id))
         .child(div().w(px(220.)).child(row.customer))
-        .child(div().w(px(120.)).child(render_status_pill(row.status)))
+        .child(div().w(px(120.)).child(render_status_pill(locale.status(row.status), row.status)))
         .child(div().w(px(120.)).child(row.amount))
         .child(div().w(px(120.)).text_color(rgb(TEXT_MUTED)).child(row.items))
         .child(div().flex_1().text_color(rgb(TEXT_MUTED)).child(row.updated_at))
 }
 
-fn render_status_pill(status: &str) -> impl IntoElement {
+fn render_status_pill(label: &str, status: &str) -> impl IntoElement {
     let (bg, fg) = match status {
         "paid" => (rgb(ACCENT_SOFT), rgb(ACCENT)),
         "refunded" => (rgb(0x362A18), rgb(WARNING)),
@@ -152,5 +158,5 @@ fn render_status_pill(status: &str) -> impl IntoElement {
         .bg(bg)
         .text_size(px(11.))
         .text_color(fg)
-        .child(status.to_owned())
+        .child(label.to_owned())
 }

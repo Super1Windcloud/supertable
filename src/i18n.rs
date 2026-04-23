@@ -460,13 +460,13 @@ impl Locale {
         }
     }
 
-    pub fn status(self, status: &str) -> &'static str {
+    pub fn status(self, status: &str) -> String {
         match (self, status) {
-            (Self::ZhCn, "paid") => "已支付",
-            (Self::ZhCn, "refunded") => "已退款",
-            (Self::ZhCn, "pending") => "处理中",
-            (Self::ZhCn, "cancelled") => "已取消",
-            _ => status,
+            (Self::ZhCn, "paid") => "已支付".to_string(),
+            (Self::ZhCn, "refunded") => "已退款".to_string(),
+            (Self::ZhCn, "pending") => "处理中".to_string(),
+            (Self::ZhCn, "cancelled") => "已取消".to_string(),
+            _ => status.to_string(),
         }
     }
 

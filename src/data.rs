@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::{env, fs, io, path::PathBuf};
 
+use crate::i18n::Locale;
+
 pub const SCHEMA_ITEMS: [SchemaItem; 8] = [
     SchemaItem::new("Tables", 23, true),
     SchemaItem::new("Views", 5, false),
@@ -113,25 +115,25 @@ impl Connection {
         }
     }
 
-    pub fn meta(&self) -> String {
+    pub fn meta(&self, locale: Locale) -> String {
         match self.kind {
             ConnectionKind::Sqlite => {
                 if self.file_path.is_empty() {
-                    "本地数据库文件".to_string()
+                    locale.sqlite_file().to_string()
                 } else {
                     self.file_path.clone()
                 }
             }
             ConnectionKind::Redis => {
                 if self.database.is_empty() {
-                    "内存缓存".to_string()
+                    locale.memory_cache().to_string()
                 } else {
                     format!("db {}", self.database)
                 }
             }
             _ => {
                 if self.database.is_empty() {
-                    format!("{} endpoint", self.kind.label())
+                    locale.endpoint_label(self.kind.label())
                 } else {
                     self.database.clone()
                 }

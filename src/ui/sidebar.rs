@@ -7,18 +7,20 @@ use gpui_component::{
 use crate::{
     data::SCHEMA_ITEMS,
     palette::{
-        ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, DANGER, PANEL_BG, PANEL_ELEVATED,
-        PANEL_MUTED, SURFACE_SOFT, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
+        ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, DANGER, PANEL_ELEVATED, PANEL_MUTED,
+        SIDEBAR_BG, SURFACE_SOFT, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
     },
 };
 
 use super::app::SuperTableApp;
 
 pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .w(px(320.))
         .h_full()
-        .bg(rgb(PANEL_BG))
+        .bg(rgb(SIDEBAR_BG))
         .border_r_1()
         .border_color(rgb(BORDER))
         .flex()
@@ -37,12 +39,12 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                         .flex()
                         .flex_col()
                         .gap_1()
-                        .child(div().text_color(rgb(TEXT)).child("Connections"))
+                        .child(div().text_color(rgb(TEXT)).child(locale.connections()))
                         .child(
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_FAINT))
-                                .child(format!("{} configured endpoints ready to use", app.connections.len())),
+                                .child(locale.configured_endpoints(app.connections.len())),
                         ),
                 )
                 .child(
@@ -59,19 +61,19 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_MUTED))
-                                .child("Today"),
+                                .child(locale.today()),
                         )
-                        .child(div().text_color(rgb(TEXT)).child("Orders sync healthy"))
+                        .child(div().text_color(rgb(TEXT)).child(locale.sync_healthy()))
                         .child(
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_FAINT))
-                                .child("18 ms median latency across the selected source"),
+                                .child(locale.latency_hint()),
                         )
                         .child(
                             Button::new("add-conn")
                                 .ghost()
-                                .label("Create Connection")
+                                .label(locale.create_connection())
                                 .on_click(_cx.listener(|app, _, window, cx| {
                                     app.open_connection_form(window, cx)
                                 })),
@@ -123,7 +125,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                     div()
                                         .text_size(px(12.))
                                         .text_color(rgb(TEXT_FAINT))
-                                        .child(item.meta()),
+                                        .child(item.meta(locale)),
                                 ),
                         )
                         .child(
@@ -132,7 +134,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                     .px_2()
                                     .py_1()
                                     .rounded(px(999.))
-                                    .bg(rgb(PANEL_BG))
+                                    .bg(rgb(SIDEBAR_BG))
                                     .text_size(px(11.))
                                     .text_color(rgb(TEXT))
                                     .child(badge),
@@ -155,7 +157,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .flex()
                 .flex_col()
                 .gap_1()
-                .child(div().text_color(rgb(TEXT)).child("Database Explorer"))
+                .child(div().text_color(rgb(TEXT)).child(locale.database_explorer()))
                 .child(
                     div()
                         .text_size(px(12.))
@@ -170,7 +172,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .flex()
                 .flex_col()
                 .children(SCHEMA_ITEMS.into_iter().map(|item| {
-                    let bg = if item.active { rgb(ACCENT_SOFT) } else { rgb(PANEL_BG) };
+                    let bg = if item.active { rgb(ACCENT_SOFT) } else { rgb(SIDEBAR_BG) };
                     let fg = if item.active { rgb(ACCENT) } else { rgb(TEXT_MUTED) };
                     div()
                         .px_3()
@@ -182,7 +184,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                         .flex()
                         .items_center()
                         .justify_between()
-                        .child(div().text_color(fg).child(item.name))
+                        .child(div().text_color(fg).child(locale.schema_item(item.name)))
                         .child(
                             div()
                                 .text_size(px(12.))

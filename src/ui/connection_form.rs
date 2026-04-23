@@ -45,12 +45,14 @@ pub fn render(
                         .child(render_header(app, cx))
                         .child(render_kind_selector(app, window, cx))
                         .child(render_form_fields(app))
-                        .child(render_footer(cx)),
+                        .child(render_footer(app, cx)),
                 ),
         )
 }
 
 fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .px_5()
         .py_5()
@@ -64,18 +66,23 @@ fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl I
                 .flex()
                 .flex_col()
                 .gap_1()
-                .child(div().text_size(px(22.)).text_color(rgb(TEXT)).child("创建连接"))
+                .child(
+                    div()
+                        .text_size(px(22.))
+                        .text_color(rgb(TEXT))
+                        .child(locale.create_connection_title()),
+                )
                 .child(
                     div()
                         .text_size(px(13.))
                         .text_color(rgb(TEXT_FAINT))
-                        .child(format!("配置 {} 连接并保存到你的工作区", app.selected_connection_kind.label())),
+                        .child(locale.configure_connection(app.selected_connection_kind.label())),
                 ),
         )
         .child(
             Button::new("close-connection-form")
                 .ghost()
-                .label("关闭")
+                .label(locale.close())
                 .on_click(cx.listener(|app, _, _, cx| {
                     app.close_connection_form();
                     cx.notify();
@@ -108,6 +115,7 @@ fn render_kind_selector(
 }
 
 fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
+    let locale = app.locale;
     let is_sqlite = app.selected_connection_kind == ConnectionKind::Sqlite;
 
     div()
@@ -132,12 +140,17 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                         .flex()
                         .flex_col()
                         .gap_1()
-                        .child(div().text_size(px(13.)).text_color(rgb(TEXT)).child("连接预设"))
+                        .child(
+                            div()
+                                .text_size(px(13.))
+                                .text_color(rgb(TEXT))
+                                .child(locale.connection_preset()),
+                        )
                         .child(
                             div()
                                 .text_size(px(12.))
                                 .text_color(rgb(TEXT_MUTED))
-                                .child("切换数据库类型会自动填充默认端口"),
+                                .child(locale.preset_hint()),
                         ),
                 )
                 .child(
@@ -156,7 +169,7 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                 .flex()
                 .flex_col()
                 .gap_2()
-                .child(field_label("名称"))
+                .child(field_label(locale.name()))
                 .child(Input::new(&app.connection_name).cleanable(true)),
         )
         .when(!is_sqlite, |this| {
@@ -170,7 +183,7 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                             .flex()
                             .flex_col()
                             .gap_2()
-                            .child(field_label("主机"))
+                            .child(field_label(locale.host()))
                             .child(Input::new(&app.connection_host).cleanable(true)),
                     )
                     .child(
@@ -179,7 +192,7 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                             .flex()
                             .flex_col()
                             .gap_2()
-                            .child(field_label("端口"))
+                            .child(field_label(locale.port()))
                             .child(Input::new(&app.connection_port).cleanable(true)),
                     ),
             )
@@ -190,7 +203,7 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                     .flex()
                     .flex_col()
                     .gap_2()
-                    .child(field_label("数据库文件"))
+                    .child(field_label(locale.database_file()))
                     .child(Input::new(&app.connection_file_path).cleanable(true)),
             )
         })
@@ -199,7 +212,11 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                 .flex()
                 .flex_col()
                 .gap_2()
-                .child(field_label(if is_sqlite { "标签 / 备注" } else { "数据库" }))
+                .child(field_label(if is_sqlite {
+                    locale.tag_or_note()
+                } else {
+                    locale.database()
+                }))
                 .child(Input::new(&app.connection_database).cleanable(true)),
         )
         .when(!is_sqlite, |this| {
@@ -213,7 +230,7 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                             .flex()
                             .flex_col()
                             .gap_2()
-                            .child(field_label("用户名"))
+                            .child(field_label(locale.username()))
                             .child(Input::new(&app.connection_username).cleanable(true)),
                     )
                     .child(
@@ -222,7 +239,7 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                             .flex()
                             .flex_col()
                             .gap_2()
-                            .child(field_label("密码"))
+                            .child(field_label(locale.password()))
                             .child(Input::new(&app.connection_password).cleanable(true)),
                     ),
             )
@@ -238,7 +255,12 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
                 .flex()
                 .flex_col()
                 .gap_1()
-                .child(div().text_size(px(13.)).text_color(rgb(TEXT)).child("支持的连接类型"))
+                .child(
+                    div()
+                        .text_size(px(13.))
+                        .text_color(rgb(TEXT))
+                        .child(locale.supported_connection_types()),
+                )
                 .child(
                     div()
                         .text_size(px(12.))
@@ -248,7 +270,9 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
         )
 }
 
-fn render_footer(cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+fn render_footer(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let locale = app.locale;
+
     div()
         .px_5()
         .py_4()
@@ -260,7 +284,7 @@ fn render_footer(cx: &mut Context<SuperTableApp>) -> impl IntoElement {
         .child(
             Button::new("cancel-connection")
                 .ghost()
-                .label("取消")
+                .label(locale.cancel())
                 .on_click(cx.listener(|app, _, _, cx| {
                     app.close_connection_form();
                     cx.notify();
@@ -269,7 +293,7 @@ fn render_footer(cx: &mut Context<SuperTableApp>) -> impl IntoElement {
         .child(
             Button::new("save-connection")
                 .primary()
-                .label("保存连接")
+                .label(locale.save_connection())
                 .on_click(cx.listener(|app, _, window, cx| app.save_connection(window, cx))),
         )
 }
