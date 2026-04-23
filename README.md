@@ -1,12 +1,15 @@
 # SuperTable
 
-SuperTable is a desktop database client prototype built with Rust, `gpui`, and `gpui-component`.
-It currently focuses on a clean SuperTable interface with a multi-panel layout for connections,
-SQL editing, and result browsing.
+SuperTable is a fully open-source and free desktop database client prototype built with Rust,
+`gpui`, and `gpui-component`. It currently focuses on a clean multi-panel interface for
+connections, SQL editing, and result browsing, with no paid tier or paywalled features in the
+current project.
 
 ## Features
 
 - SuperTable desktop UI
+- MIT licensed and fully open source
+- No subscription, no pro tier, no paywall in the current project
 - Built with `gpui` and `gpui-component`
 - Modularized Rust source structure
 - Custom application icon from `icon.png`
