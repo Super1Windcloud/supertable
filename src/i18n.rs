@@ -82,6 +82,13 @@ impl Locale {
         }
     }
 
+    pub fn open_source_badge(self) -> &'static str {
+        match self {
+            Self::ZhCn => "MIT 开源免费",
+            Self::EnUs => "MIT Open Source",
+        }
+    }
+
     pub fn new_query(self) -> &'static str {
         match self {
             Self::ZhCn => "新建查询",
@@ -98,8 +105,8 @@ impl Locale {
 
     pub fn export(self) -> &'static str {
         match self {
-            Self::ZhCn => "导出",
-            Self::EnUs => "Export",
+            Self::ZhCn => "社区版",
+            Self::EnUs => "Community",
         }
     }
 
@@ -126,15 +133,15 @@ impl Locale {
 
     pub fn sync_healthy(self) -> &'static str {
         match self {
-            Self::ZhCn => "订单同步状态良好",
-            Self::EnUs => "Orders sync healthy",
+            Self::ZhCn => "完全开源，无付费墙",
+            Self::EnUs => "Fully open source, no paywall",
         }
     }
 
     pub fn latency_hint(self) -> &'static str {
         match self {
-            Self::ZhCn => "当前数据源中位延迟 18 ms",
-            Self::EnUs => "18 ms median latency across the selected source",
+            Self::ZhCn => "当前版本默认提供完整功能，可自由使用与修改",
+            Self::EnUs => "The current build ships with the full feature set for free use and modification",
         }
     }
 
@@ -203,8 +210,8 @@ impl Locale {
 
     pub fn welcome_copy(self) -> &'static str {
         match self {
-            Self::ZhCn => "为多种数据库连接、探索与查询打造的现代工作台",
-            Self::EnUs => "A modern workspace for connecting, exploring and querying across databases",
+            Self::ZhCn => "完全开源免费，为多种数据库连接、探索与查询打造的现代工作台",
+            Self::EnUs => "A fully open-source and free workspace for connecting, exploring and querying across databases",
         }
     }
 
@@ -224,15 +231,15 @@ impl Locale {
 
     pub fn info_focused_workflow_title(self) -> &'static str {
         match self {
-            Self::ZhCn => "专注工作流",
-            Self::EnUs => "Focused workflow",
+            Self::ZhCn => "无付费限制",
+            Self::EnUs => "No paywall",
         }
     }
 
     pub fn info_focused_workflow_body(self) -> &'static str {
         match self {
-            Self::ZhCn => "连接、编辑器与结果面板统一在一套安静布局中",
-            Self::EnUs => "Connections, editor and results in one calm layout",
+            Self::ZhCn => "默认提供完整界面能力，不区分免费版与专业版",
+            Self::EnUs => "The full interface ships without a separate free tier or pro tier",
         }
     }
 

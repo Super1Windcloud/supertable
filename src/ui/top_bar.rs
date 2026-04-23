@@ -93,7 +93,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                         .border_color(rgb(BORDER))
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_MUTED))
-                        .child(locale.workspaces_label()),
+                        .child(locale.open_source_badge()),
                 )
                 .child(Button::new("new-query").primary().label(locale.new_query()))
                 .child(

@@ -71,6 +71,18 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                                 )
                                 .child(
                                     div()
+                                        .px_3()
+                                        .py_1()
+                                        .rounded(px(999.))
+                                        .bg(rgb(PANEL_ELEVATED))
+                                        .border_1()
+                                        .border_color(rgb(BORDER))
+                                        .text_size(px(12.))
+                                        .text_color(rgb(TEXT_MUTED))
+                                        .child(locale.open_source_badge()),
+                                )
+                                .child(
+                                    div()
                                         .mt_2()
                                         .flex()
                                         .gap_3()

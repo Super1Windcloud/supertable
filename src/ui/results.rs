@@ -142,7 +142,7 @@ fn render_result_row(app: &SuperTableApp, row: ResultRow, ix: usize) -> impl Int
         .child(div().flex_1().text_color(rgb(TEXT_MUTED)).child(row.updated_at))
 }
 
-fn render_status_pill(label: &str, status: &str) -> impl IntoElement {
+fn render_status_pill(label: String, status: &str) -> impl IntoElement {
     let (bg, fg) = match status {
         "paid" => (rgb(ACCENT_SOFT), rgb(ACCENT)),
         "refunded" => (rgb(0x362A18), rgb(WARNING)),
@@ -158,5 +158,5 @@ fn render_status_pill(label: &str, status: &str) -> impl IntoElement {
         .bg(bg)
         .text_size(px(11.))
         .text_color(fg)
-        .child(label.to_owned())
+        .child(label)
 }
