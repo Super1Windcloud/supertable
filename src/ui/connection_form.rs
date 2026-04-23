@@ -7,7 +7,10 @@ use gpui_component::{
 
 use crate::{
     data::ConnectionKind,
-    palette::{BORDER, PANEL_BG, PANEL_ELEVATED, TEXT, TEXT_FAINT, TEXT_MUTED},
+    palette::{
+        ACCENT, ACCENT_SOFT, APP_BG, BORDER, BORDER_SOFT, PANEL_BG, PANEL_ELEVATED, TEXT,
+        TEXT_FAINT, TEXT_MUTED,
+    },
 };
 
 use super::app::SuperTableApp;
@@ -23,17 +26,18 @@ pub fn render(
         .left_0()
         .right_0()
         .bottom_0()
-        .bg(rgb(0x091017))
+        .bg(rgb(APP_BG))
         .child(
             div()
                 .size_full()
                 .flex()
                 .items_center()
                 .justify_center()
+                .p_5()
                 .child(
                     div()
                         .w(px(760.))
-                        .rounded(px(18.))
+                        .rounded(px(24.))
                         .border_1()
                         .border_color(rgb(BORDER))
                         .bg(rgb(PANEL_BG))
@@ -49,7 +53,7 @@ pub fn render(
 fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
         .px_5()
-        .py_4()
+        .py_5()
         .border_b_1()
         .border_color(rgb(BORDER))
         .flex()
@@ -65,7 +69,7 @@ fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl I
                     div()
                         .text_size(px(13.))
                         .text_color(rgb(TEXT_FAINT))
-                        .child(format!("配置 {} 连接", app.selected_connection_kind.label())),
+                        .child(format!("配置 {} 连接并保存到你的工作区", app.selected_connection_kind.label())),
                 ),
         )
         .child(
@@ -88,7 +92,7 @@ fn render_kind_selector(
         .px_5()
         .py_4()
         .border_b_1()
-        .border_color(rgb(BORDER))
+        .border_color(rgb(BORDER_SOFT))
         .flex()
         .gap_2()
         .flex_wrap()
@@ -112,6 +116,41 @@ fn render_form_fields(app: &SuperTableApp) -> impl IntoElement {
         .flex()
         .flex_col()
         .gap_4()
+        .child(
+            div()
+                .rounded(px(16.))
+                .border_1()
+                .border_color(rgb(BORDER))
+                .bg(rgb(PANEL_ELEVATED))
+                .px_4()
+                .py_3()
+                .flex()
+                .items_center()
+                .justify_between()
+                .child(
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .child(div().text_size(px(13.)).text_color(rgb(TEXT)).child("连接预设"))
+                        .child(
+                            div()
+                                .text_size(px(12.))
+                                .text_color(rgb(TEXT_MUTED))
+                                .child("切换数据库类型会自动填充默认端口"),
+                        ),
+                )
+                .child(
+                    div()
+                        .px_2()
+                        .py_1()
+                        .rounded(px(999.))
+                        .bg(rgb(ACCENT_SOFT))
+                        .text_size(px(11.))
+                        .text_color(rgb(ACCENT))
+                        .child(app.selected_connection_kind.label()),
+                ),
+        )
         .child(
             div()
                 .flex()

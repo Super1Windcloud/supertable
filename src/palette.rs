@@ -11,7 +11,6 @@ pub const TEXT_MUTED: u32 = 0xA0B5C8;
 pub const TEXT_FAINT: u32 = 0x6F869A;
 pub const ACCENT: u32 = 0x7BE0B3;
 pub const ACCENT_SOFT: u32 = 0x173C35;
-pub const ACCENT_GLOW: u32 = 0x214D48;
 pub const WARNING: u32 = 0xF2C572;
 pub const DANGER: u32 = 0xF07A7A;
 pub const BLUE: u32 = 0x7AB8FF;

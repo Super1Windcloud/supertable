@@ -7,8 +7,8 @@ use gpui_component::{
 use crate::{
     data::{ROWS, ResultRow},
     palette::{
-        ACCENT, ACCENT_SOFT, BORDER, BORDER_SOFT, DANGER, PANEL_BG, PANEL_ELEVATED, PANEL_MUTED,
-        ROW_ALT, ROW_SELECTED, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
+        ACCENT, ACCENT_SOFT, BLUE_SOFT, BORDER, BORDER_SOFT, DANGER, PANEL_BG, PANEL_ELEVATED,
+        PANEL_MUTED, ROW_ALT, ROW_SELECTED, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
     },
 };
 
@@ -17,7 +17,7 @@ use super::app::SuperTableApp;
 pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
         .flex_1()
-        .rounded(px(14.))
+        .rounded(px(18.))
         .bg(rgb(PANEL_BG))
         .border_1()
         .border_color(rgb(BORDER))
@@ -37,7 +37,7 @@ pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> imp
 
 fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
-        .h(px(52.))
+        .h(px(58.))
         .px_4()
         .flex()
         .items_center()
@@ -51,6 +51,16 @@ fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl 
                 .flex()
                 .items_center()
                 .gap_3()
+                .child(
+                    div()
+                        .px_2()
+                        .py_1()
+                        .rounded(px(999.))
+                        .bg(rgb(BLUE_SOFT))
+                        .text_size(px(11.))
+                        .text_color(rgb(TEXT))
+                        .child("Sample"),
+                )
                 .child(
                     div()
                         .w(px(240.))
@@ -84,7 +94,7 @@ fn render_tabs(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
 fn render_table_header() -> impl IntoElement {
     div()
         .h(px(42.))
-        .px_3()
+        .px_4()
         .bg(rgb(PANEL_ELEVATED))
         .border_b_1()
         .border_color(rgb(BORDER_SOFT))
@@ -110,8 +120,8 @@ fn render_result_row(row: ResultRow, ix: usize) -> impl IntoElement {
     };
 
     div()
-        .h(px(46.))
-        .px_3()
+        .h(px(48.))
+        .px_4()
         .flex()
         .items_center()
         .bg(bg)
@@ -130,7 +140,7 @@ fn render_status_pill(status: &str) -> impl IntoElement {
     let (bg, fg) = match status {
         "paid" => (rgb(ACCENT_SOFT), rgb(ACCENT)),
         "refunded" => (rgb(0x362A18), rgb(WARNING)),
-        "pending" => (rgb(0x2B2338), rgb(0xC291FF)),
+        "pending" => (rgb(0x29364A), rgb(0xAACDFF)),
         "cancelled" => (rgb(0x3A1D23), rgb(DANGER)),
         _ => (rgb(PANEL_MUTED), rgb(TEXT_MUTED)),
     };

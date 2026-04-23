@@ -20,6 +20,7 @@ use cocoa::{
 #[cfg(target_os = "macos")]
 use objc::{class, msg_send, sel, sel_impl};
 
+#[cfg(target_os = "macos")]
 use assets::app_icon_path;
 use ui::app::SuperTableApp;
 
