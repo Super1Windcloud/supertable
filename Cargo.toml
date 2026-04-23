@@ -1,0 +1,19 @@
+[package]
+name = "supertable"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gpui = "0.2.2"
+gpui-component = "0.5.1"
+
+
+[profile.dev]
+debug = 0
+
+#最快编译时间
+[profile.release]
+lto = false
+codegen-units = 256
+panic = "abort"
+debug = 0

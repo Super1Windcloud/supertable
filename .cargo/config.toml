@@ -1,0 +1,8 @@
+[target.'cfg(target_os = "windows")']
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# Full static linking on Linux is practical with musl targets.
+[target.'cfg(all(target_os = "linux", target_env = "musl"))']
+rustflags = ["-C", "target-feature=+crt-static"]
+
+# macOS does not support fully static linking of system runtime libraries.
