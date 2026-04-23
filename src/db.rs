@@ -7,7 +7,7 @@ use mongodb::{
 };
 use mysql::{Opts, Pool, PooledConn, Row as MySqlRow, Value as MySqlValue, prelude::Queryable};
 use postgres::{Client as PostgresClient, NoTls, Row as PostgresRow, types::Type};
-use redis::{Commands, ConnectionLike};
+use redis::Commands;
 use rusqlite::{Connection as SqliteConnection, types::ValueRef};
 
 use crate::data::{Connection, ConnectionKind};

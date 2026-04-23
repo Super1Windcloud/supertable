@@ -383,13 +383,6 @@ impl Locale {
         }
     }
 
-    pub fn sample(self) -> &'static str {
-        match self {
-            Self::ZhCn => "实时",
-            Self::EnUs => "Live",
-        }
-    }
-
     pub fn result_stats(self) -> &'static str {
         match self {
             Self::ZhCn => "数据库源返回",
@@ -436,51 +429,6 @@ impl Locale {
         match self {
             Self::ZhCn => "控制台",
             Self::EnUs => "Console",
-        }
-    }
-
-    pub fn table_customer(self) -> &'static str {
-        match self {
-            Self::ZhCn => "客户",
-            Self::EnUs => "CUSTOMER",
-        }
-    }
-
-    pub fn table_status(self) -> &'static str {
-        match self {
-            Self::ZhCn => "状态",
-            Self::EnUs => "STATUS",
-        }
-    }
-
-    pub fn table_amount(self) -> &'static str {
-        match self {
-            Self::ZhCn => "金额",
-            Self::EnUs => "AMOUNT",
-        }
-    }
-
-    pub fn table_items(self) -> &'static str {
-        match self {
-            Self::ZhCn => "项目数",
-            Self::EnUs => "ITEMS",
-        }
-    }
-
-    pub fn table_updated_at(self) -> &'static str {
-        match self {
-            Self::ZhCn => "更新时间",
-            Self::EnUs => "UPDATED AT",
-        }
-    }
-
-    pub fn status(self, status: &str) -> String {
-        match (self, status) {
-            (Self::ZhCn, "paid") => "已支付".to_string(),
-            (Self::ZhCn, "refunded") => "已退款".to_string(),
-            (Self::ZhCn, "pending") => "处理中".to_string(),
-            (Self::ZhCn, "cancelled") => "已取消".to_string(),
-            _ => status.to_string(),
         }
     }
 

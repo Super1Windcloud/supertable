@@ -164,7 +164,11 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                     div()
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_FAINT))
-                        .child(app.preview.source_label.clone()),
+                        .child(if app.preview.status_label.is_empty() {
+                            app.preview.source_label.clone()
+                        } else {
+                            format!("{} • {}", app.preview.source_label, app.preview.status_label)
+                        }),
                 ),
         )
         .child(
