@@ -63,6 +63,12 @@ Then start the watcher from the project root:
 ./scripts/dev-watch.ps1
 ```
 
+On macOS and Linux:
+
+```bash
+sh ./scripts/dev-watch.sh
+```
+
 Or use the cross-platform `just` entrypoint:
 
 ```bash
