@@ -59,6 +59,45 @@ Or with `just`:
 just run
 ```
 
+### Local Database Stack
+
+This repository includes a `docker compose` setup for local test databases with seed data for:
+
+- SQLite
+- MySQL
+- PostgreSQL
+- Redis
+- MongoDB
+
+Start everything:
+
+```bash
+just db-up
+```
+
+Stop everything:
+
+```bash
+just db-down
+```
+
+Reset volumes and recreate seed data:
+
+```bash
+just db-reset
+```
+
+Connection presets:
+
+- MySQL: `127.0.0.1:3306`, database `app`, username `supertable`, password `supertable`
+- PostgreSQL: `127.0.0.1:5432`, database `app`, username `supertable`, password `supertable`
+- Redis: `127.0.0.1:6379`, database `0`
+- MongoDB: `127.0.0.1:27017`, database `app`, username `root`, password `root`
+- SQLite file: `docker/sqlite/data/demo.sqlite`
+
+Seeded datasets include `customers` and `orders` records for SQL databases, representative user and
+flag keys in Redis, and matching customer/order collections in MongoDB.
+
 ### Hot Reload Build
 
 This project uses `watchexec` for the local edit-build-restart loop.

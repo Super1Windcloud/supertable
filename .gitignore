@@ -1,2 +1,4 @@
 /target
 .idea
+docker/sqlite/data/*
+!docker/sqlite/data/.gitkeep

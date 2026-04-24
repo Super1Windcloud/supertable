@@ -1,0 +1,98 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: supertable-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: app
+      MYSQL_USER: supertable
+      MYSQL_PASSWORD: supertable
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  postgres:
+    image: postgres:17
+    container_name: supertable-postgres
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: supertable
+      POSTGRES_PASSWORD: supertable
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supertable -d app"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: supertable-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis-seed:
+    image: redis:7-alpine
+    container_name: supertable-redis-seed
+    depends_on:
+      redis:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "/seed/init-redis.sh"]
+    volumes:
+      - ./docker/redis:/seed:ro
+    restart: "no"
+
+  mongo:
+    image: mongo:8
+    container_name: supertable-mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: app
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - ./docker/mongo:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh --quiet --username root --password root --authenticationDatabase admin --eval 'db.adminCommand({ ping: 1 }).ok'",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  sqlite:
+    image: python:3.12-alpine
+    container_name: supertable-sqlite-seed
+    volumes:
+      - ./docker/sqlite:/seed
+      - ./docker/sqlite/data:/data
+    command: ["python", "/seed/init.py"]
+    restart: "no"
+
+volumes:
+  mysql-data:
+  postgres-data:
+  redis-data:
+  mongo-data:
