@@ -16,7 +16,6 @@ use crate::data::{Connection, ConnectionKind};
 pub struct DataPreview {
     pub source_label: String,
     pub status_label: String,
-    pub query_lines: Vec<String>,
     pub schema_items: Vec<SchemaEntry>,
     pub columns: Vec<String>,
     pub rows: Vec<Vec<String>>,
@@ -78,10 +77,6 @@ fn sql_preview_from_mysql(
     let mut preview = DataPreview {
         source_label: format!("{label} / {database_name}"),
         status_label: format!("{} tables", tables.len()),
-        query_lines: first_table
-            .as_ref()
-            .map(|table| vec![format!("SELECT * FROM `{table}` LIMIT 50;")])
-            .unwrap_or_else(|| vec!["-- No table found in current database".to_string()]),
         schema_items: vec![SchemaEntry {
             name: "Tables".to_string(),
             count: tables.len(),
@@ -157,10 +152,6 @@ fn load_postgres_preview(connection: &Connection) -> Result<DataPreview, Preview
     let mut preview = DataPreview {
         source_label: format!("PostgreSQL / {}", connection.database),
         status_label: format!("{} tables", tables.len()),
-        query_lines: first_table
-            .as_ref()
-            .map(|table| vec![format!("SELECT * FROM \"{table}\" LIMIT 50;")])
-            .unwrap_or_else(|| vec!["-- No table found in public schema".to_string()]),
         schema_items: vec![SchemaEntry {
             name: "Tables".to_string(),
             count: tables.len(),
@@ -245,10 +236,6 @@ fn load_sqlite_preview(connection: &Connection) -> Result<DataPreview, PreviewEr
     let mut preview = DataPreview {
         source_label: format!("SQLite / {}", connection.name),
         status_label: format!("{} tables", tables.len()),
-        query_lines: first_table
-            .as_ref()
-            .map(|table| vec![format!("SELECT * FROM \"{table}\" LIMIT 50;")])
-            .unwrap_or_else(|| vec!["-- No table found in current file".to_string()]),
         schema_items: vec![SchemaEntry {
             name: "Tables".to_string(),
             count: tables.len(),
@@ -337,11 +324,6 @@ fn load_redis_preview(connection: &Connection) -> Result<DataPreview, PreviewErr
     Ok(DataPreview {
         source_label: format!("Redis / db {}", if connection.database.is_empty() { "0" } else { &connection.database }),
         status_label: format!("{} keys", keys.len()),
-        query_lines: vec![
-            "SCAN 0".to_string(),
-            "TYPE <key>".to_string(),
-            "GET <key>".to_string(),
-        ],
         schema_items: vec![SchemaEntry {
             name: "Keys".to_string(),
             count: keys.len(),
@@ -374,10 +356,6 @@ fn load_mongodb_preview(connection: &Connection) -> Result<DataPreview, PreviewE
     let mut preview = DataPreview {
         source_label: format!("MongoDB / {}", connection.database),
         status_label: format!("{} collections", collections.len()),
-        query_lines: first_collection
-            .as_ref()
-            .map(|name| vec![format!("db.{name}.find({{}}).limit(50)")])
-            .unwrap_or_else(|| vec!["// No collection found in current database".to_string()]),
         schema_items: vec![SchemaEntry {
             name: "Collections".to_string(),
             count: collections.len(),

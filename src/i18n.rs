@@ -1,9 +1,11 @@
+#[allow(dead_code)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Locale {
     ZhCn,
     EnUs,
 }
 
+#[allow(dead_code)]
 impl Locale {
     pub fn toggle(self) -> Self {
         match self {

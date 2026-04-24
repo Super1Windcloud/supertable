@@ -10,14 +10,13 @@ use crate::{
     palette::{APP_BG, APP_BG_ALT},
 };
 
-use super::{connection_form, editor, onboarding, results, sidebar, top_bar};
+use super::{connection_form, results, sidebar};
 
 pub struct SuperTableApp {
     pub connections: Vec<Connection>,
     pub locale: Locale,
     pub preview: DataPreview,
     pub preview_error: Option<String>,
-    pub grid_search: Entity<InputState>,
     pub connection_name: Entity<InputState>,
     pub connection_host: Entity<InputState>,
     pub connection_port: Entity<InputState>,
@@ -27,8 +26,6 @@ pub struct SuperTableApp {
     pub connection_file_path: Entity<InputState>,
     pub show_connection_form: bool,
     pub selected_connection_kind: ConnectionKind,
-    pub selected_editor_tab: usize,
-    pub selected_result_tab: usize,
 }
 
 impl SuperTableApp {
@@ -42,7 +39,6 @@ impl SuperTableApp {
             locale,
             preview,
             preview_error,
-            grid_search: Self::build_input(window, cx, locale.grid_search_placeholder(), ""),
             connection_name: Self::build_input(
                 window,
                 cx,
@@ -72,8 +68,6 @@ impl SuperTableApp {
             connection_file_path: Self::build_input(window, cx, "C:\\data\\app.db", ""),
             show_connection_form: false,
             selected_connection_kind: ConnectionKind::MySql,
-            selected_editor_tab: 0,
-            selected_result_tab: 0,
         }
     }
 
@@ -91,59 +85,6 @@ impl SuperTableApp {
             }
             input
         })
-    }
-
-    fn relocalize_inputs(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let locale = self.locale;
-        let grid_search = self.grid_search.read(cx).value().to_string();
-        let connection_name = self.connection_name.read(cx).value().to_string();
-        let connection_host = self.connection_host.read(cx).value().to_string();
-        let connection_port = self.connection_port.read(cx).value().to_string();
-        let connection_database = self.connection_database.read(cx).value().to_string();
-        let connection_username = self.connection_username.read(cx).value().to_string();
-        let connection_password = self.connection_password.read(cx).value().to_string();
-        let connection_file_path = self.connection_file_path.read(cx).value().to_string();
-
-        self.grid_search =
-            Self::build_input(window, cx, locale.grid_search_placeholder(), &grid_search);
-        self.connection_name = Self::build_input(
-            window,
-            cx,
-            locale.connection_name_placeholder(),
-            &connection_name,
-        );
-        self.connection_host = Self::build_input(window, cx, "127.0.0.1", &connection_host);
-        self.connection_port = Self::build_input(window, cx, "3306", &connection_port);
-        self.connection_database = Self::build_input(
-            window,
-            cx,
-            locale.connection_database_placeholder(),
-            &connection_database,
-        );
-        self.connection_username = Self::build_input(
-            window,
-            cx,
-            locale.connection_username_placeholder(),
-            &connection_username,
-        );
-        self.connection_password = Self::build_input(
-            window,
-            cx,
-            locale.connection_password_placeholder(),
-            &connection_password,
-        );
-        self.connection_file_path =
-            Self::build_input(window, cx, "C:\\data\\app.db", &connection_file_path);
-    }
-
-    pub fn toggle_locale(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.locale = self.locale.toggle();
-        self.relocalize_inputs(window, cx);
-        cx.notify();
-    }
-
-    pub fn has_connections(&self) -> bool {
-        !self.connections.is_empty()
     }
 
     pub fn open_connection_form(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -249,40 +190,23 @@ impl SuperTableApp {
 
 impl Render for SuperTableApp {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let body = if self.has_connections() {
-            div()
-                .size_full()
-                .bg(rgb(APP_BG))
-                .text_color(cx.theme().foreground)
-                .flex()
-                .flex_col()
-                .child(top_bar::render(self, cx))
-                .child(
-                    div()
-                        .flex_1()
-                        .flex()
-                        .child(sidebar::render(self, cx))
-                        .child(
-                            div()
-                                .flex_1()
-                                .flex()
-                                .flex_col()
-                                .p_3()
-                                .gap_3()
-                                .child(editor::render_tabs(self, cx))
-                                .child(editor::render_sql_editor(self))
-                                .child(results::render_panel(self, cx)),
-                        ),
-                )
-                .into_any_element()
-        } else {
-            onboarding::render(self, cx).into_any_element()
-        };
-
         div()
             .size_full()
             .bg(rgb(APP_BG_ALT))
-            .child(body)
+            .child(
+                div()
+                    .size_full()
+                    .bg(rgb(APP_BG))
+                    .text_color(cx.theme().foreground)
+                    .flex()
+                    .child(sidebar::render(self, cx))
+                    .child(
+                        div()
+                            .flex_1()
+                            .p_3()
+                            .child(results::render_panel(self, cx)),
+                    ),
+            )
             .when(self.show_connection_form, |this| {
                 this.child(connection_form::render(self, window, cx))
             })

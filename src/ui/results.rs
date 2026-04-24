@@ -1,8 +1,5 @@
 use gpui::{Context, IntoElement, div, px, rgb, prelude::*};
-use gpui_component::{
-    input::Input,
-    tab::{Tab, TabBar},
-};
+use gpui_component::button::{Button, ButtonVariants};
 
 use crate::palette::{
     BLUE_SOFT, BORDER, BORDER_SOFT, PANEL_ELEVATED, ROW_ALT, ROW_SELECTED, TABLE_BG, TEXT,
@@ -54,11 +51,6 @@ fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl 
                 )
                 .child(
                     div()
-                        .w(px(240.))
-                        .child(Input::new(&app.grid_search).cleanable(true)),
-                )
-                .child(
-                    div()
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_FAINT))
                         .child(format!("{} • {}", app.preview.rows.len(), locale.result_stats())),
@@ -66,21 +58,25 @@ fn render_toolbar(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl 
         )
 }
 
-fn render_tabs(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
-    let locale = app.locale;
-    let entity = cx.entity().clone();
-    TabBar::new("result-tabs")
-        .pill()
-        .selected_index(app.selected_result_tab)
-        .on_click(move |ix, _, cx| {
-            entity.update(cx, |this, cx| {
-                this.selected_result_tab = *ix;
-                cx.notify();
-            });
-        })
-        .child(Tab::new().label(locale.data_tab()))
-        .child(Tab::new().label(locale.structure_tab()))
-        .child(Tab::new().label(locale.console_tab()))
+fn render_tabs(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+    let label = if app.preview.source_label.is_empty() {
+        app.locale.database_explorer().to_string()
+    } else if app.preview.status_label.is_empty() {
+        app.preview.source_label.clone()
+    } else {
+        format!("{} • {}", app.preview.source_label, app.preview.status_label)
+    };
+
+    div()
+        .flex()
+        .items_center()
+        .gap_3()
+        .child(div().text_color(rgb(TEXT)).child(label))
+        .child(
+            Button::new("table-view")
+                .ghost()
+                .label(app.locale.data_tab()),
+        )
 }
 
 fn render_table_header(app: &SuperTableApp) -> impl IntoElement {

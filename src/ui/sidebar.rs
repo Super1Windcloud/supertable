@@ -6,8 +6,8 @@ use gpui_component::{
 
 use crate::{
     palette::{
-        ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, DANGER, PANEL_ELEVATED, PANEL_MUTED,
-        SIDEBAR_BG, SURFACE_SOFT, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
+        ACCENT, ACCENT_SOFT, BLUE, BORDER, BORDER_SOFT, DANGER, PANEL_MUTED, SIDEBAR_BG,
+        SURFACE_SOFT, TEXT, TEXT_FAINT, TEXT_MUTED, WARNING,
     },
 };
 
@@ -31,8 +31,8 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                 .border_b_1()
                 .border_color(rgb(BORDER_SOFT))
                 .flex()
-                .flex_col()
-                .gap_3()
+                .items_center()
+                .justify_between()
                 .child(
                     div()
                         .flex()
@@ -47,37 +47,13 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
                         ),
                 )
                 .child(
-                    div()
-                        .rounded(px(14.))
-                        .bg(rgb(PANEL_ELEVATED))
-                        .border_1()
-                        .border_color(rgb(BORDER))
-                        .p_3()
-                        .flex()
-                        .flex_col()
-                        .gap_2()
-                        .child(
-                            div()
-                                .text_size(px(12.))
-                                .text_color(rgb(TEXT_MUTED))
-                                .child(locale.today()),
-                        )
-                        .child(div().text_color(rgb(TEXT)).child(locale.sync_healthy()))
-                        .child(
-                            div()
-                                .text_size(px(12.))
-                                .text_color(rgb(TEXT_FAINT))
-                                .child(locale.latency_hint()),
-                        )
-                        .child(
-                            Button::new("add-conn")
-                                .ghost()
-                                .label(locale.create_connection())
-                                .on_click(_cx.listener(|app, _, window, cx| {
-                                    app.open_connection_form(window, cx)
-                                })),
-                        ),
-                ),
+                    Button::new("add-conn")
+                        .ghost()
+                        .label(locale.create_connection())
+                        .on_click(_cx.listener(|app, _, window, cx| {
+                            app.open_connection_form(window, cx)
+                        })),
+                )
         )
         .child(
             div()
@@ -147,7 +123,7 @@ pub fn render(app: &SuperTableApp, _cx: &mut Context<SuperTableApp>) -> impl Int
         .child(
             div()
                 .mx_4()
-                .mt_1()
+                .mt_2()
                 .mb_4()
                 .border_t_1()
                 .border_color(rgb(BORDER_SOFT)),
