@@ -133,10 +133,52 @@ impl Locale {
         }
     }
 
+    pub fn refresh(self) -> &'static str {
+        match self {
+            Self::ZhCn => "刷新",
+            Self::EnUs => "Refresh",
+        }
+    }
+
     pub fn database_explorer(self) -> &'static str {
         match self {
             Self::ZhCn => "数据库浏览器",
             Self::EnUs => "Database Explorer",
+        }
+    }
+
+    pub fn sources(self) -> &'static str {
+        match self {
+            Self::ZhCn => "数据源",
+            Self::EnUs => "Sources",
+        }
+    }
+
+    pub fn objects(self) -> &'static str {
+        match self {
+            Self::ZhCn => "对象",
+            Self::EnUs => "Objects",
+        }
+    }
+
+    pub fn rows_label(self) -> &'static str {
+        match self {
+            Self::ZhCn => "行数",
+            Self::EnUs => "Rows",
+        }
+    }
+
+    pub fn columns_label(self) -> &'static str {
+        match self {
+            Self::ZhCn => "列数",
+            Self::EnUs => "Columns",
+        }
+    }
+
+    pub fn active_source(self) -> &'static str {
+        match self {
+            Self::ZhCn => "当前数据源",
+            Self::EnUs => "Active source",
         }
     }
 

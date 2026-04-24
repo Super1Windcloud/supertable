@@ -163,6 +163,11 @@ impl SuperTableApp {
         cx.notify();
     }
 
+    pub fn refresh_preview(&mut self, cx: &mut Context<Self>) {
+        self.reload_preview();
+        cx.notify();
+    }
+
     fn reload_preview(&mut self) {
         let (preview, preview_error) = preview_for_active_connection(&self.connections);
         self.preview = preview;
