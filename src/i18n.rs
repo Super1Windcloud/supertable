@@ -168,6 +168,27 @@ impl Locale {
         }
     }
 
+    pub fn filter_rows(self) -> &'static str {
+        match self {
+            Self::ZhCn => "筛选当前网格",
+            Self::EnUs => "Filter grid rows",
+        }
+    }
+
+    pub fn selected_row(self) -> &'static str {
+        match self {
+            Self::ZhCn => "当前行",
+            Self::EnUs => "Selected row",
+        }
+    }
+
+    pub fn all_rows(self) -> &'static str {
+        match self {
+            Self::ZhCn => "全部行",
+            Self::EnUs => "All rows",
+        }
+    }
+
     pub fn database_explorer(self) -> &'static str {
         match self {
             Self::ZhCn => "数据库浏览器",
@@ -522,6 +543,118 @@ impl Locale {
         match self {
             Self::ZhCn => format!("{kind} 端点"),
             Self::EnUs => format!("{kind} endpoint"),
+        }
+    }
+
+    pub fn my_databases(self) -> &'static str {
+        match self {
+            Self::ZhCn => "我的数据库",
+            Self::EnUs => "My databases",
+        }
+    }
+
+    pub fn query_console(self) -> &'static str {
+        match self {
+            Self::ZhCn => "查询控制台",
+            Self::EnUs => "Query Console",
+        }
+    }
+
+    pub fn playground(self) -> &'static str {
+        match self {
+            Self::ZhCn => "实验区",
+            Self::EnUs => "Playground",
+        }
+    }
+
+    pub fn tx_auto(self) -> &'static str {
+        match self {
+            Self::ZhCn => "事务: 自动",
+            Self::EnUs => "Tx: Auto",
+        }
+    }
+
+    pub fn schema_public(self) -> &'static str {
+        match self {
+            Self::ZhCn => "public",
+            Self::EnUs => "public",
+        }
+    }
+
+    pub fn properties(self) -> &'static str {
+        match self {
+            Self::ZhCn => "属性",
+            Self::EnUs => "Properties",
+        }
+    }
+
+    pub fn deactivate(self) -> &'static str {
+        match self {
+            Self::ZhCn => "断开",
+            Self::EnUs => "Deactivate",
+        }
+    }
+
+    pub fn filter(self) -> &'static str {
+        match self {
+            Self::ZhCn => "过滤",
+            Self::EnUs => "Filter",
+        }
+    }
+
+    pub fn view_options(self) -> &'static str {
+        match self {
+            Self::ZhCn => "视图",
+            Self::EnUs => "View Options",
+        }
+    }
+
+    pub fn history(self) -> &'static str {
+        match self {
+            Self::ZhCn => "历史",
+            Self::EnUs => "History",
+        }
+    }
+
+    pub fn params(self) -> &'static str {
+        match self {
+            Self::ZhCn => "参数",
+            Self::EnUs => "Params",
+        }
+    }
+
+    pub fn in_editor_results(self) -> &'static str {
+        match self {
+            Self::ZhCn => "编辑器结果",
+            Self::EnUs => "In-Editor Results",
+        }
+    }
+
+    pub fn first_page(self) -> &'static str {
+        match self {
+            Self::ZhCn => "首页",
+            Self::EnUs => "First",
+        }
+    }
+
+    pub fn prev_page(self) -> &'static str {
+        match self {
+            Self::ZhCn => "上一页",
+            Self::EnUs => "Prev",
+        }
+    }
+
+    pub fn next_page(self) -> &'static str {
+        match self {
+            Self::ZhCn => "下一页",
+            Self::EnUs => "Next",
+        }
+    }
+
+    pub fn last_page(self) -> &'static str {
+        match self {
+            Self::ZhCn => "末页",
+            Self::EnUs => "Last",
         }
     }
 }

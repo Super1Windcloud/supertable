@@ -82,6 +82,7 @@ impl Connection {
         }
     }
 
+    #[allow(dead_code)]
     pub fn meta(&self, locale: Locale) -> String {
         match self.kind {
             ConnectionKind::Sqlite => {

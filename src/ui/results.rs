@@ -2,6 +2,7 @@ use gpui::{Context, IntoElement, div, px, rgb, prelude::*};
 use gpui_component::{
     button::{Button, ButtonVariants},
     input::Input,
+    scroll::ScrollableElement,
 };
 
 use crate::palette::{
@@ -14,7 +15,7 @@ use super::app::SuperTableApp;
 pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
         .size_full()
-        .rounded(px(18.))
+        .rounded(px(16.))
         .bg(rgb(TABLE_BG))
         .border_1()
         .border_color(rgb(BORDER))
@@ -22,9 +23,10 @@ pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> imp
         .flex()
         .flex_col()
         .child(render_header(app, cx))
-        .child(render_summary(app))
-        .child(render_table_header(app))
+        .child(render_summary(app, cx))
+        .child(render_table_header(app, cx))
         .child(render_rows(app, cx))
+        .child(render_footer(app))
 }
 
 fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
@@ -36,8 +38,8 @@ fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl I
     };
 
     div()
-        .h(px(68.))
-        .px_5()
+        .h(px(46.))
+        .px_4()
         .bg(rgb(PANEL_ELEVATED))
         .border_b_1()
         .border_color(rgb(BORDER_SOFT))
@@ -49,10 +51,10 @@ fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl I
                 .flex()
                 .flex_col()
                 .gap_1()
-                .child(div().text_color(rgb(TEXT)).child(source_label))
+                .child(div().text_size(px(13.)).text_color(rgb(TEXT)).child(source_label))
                 .child(
                     div()
-                        .text_size(px(12.))
+                        .text_size(px(11.))
                         .text_color(rgb(TEXT_FAINT))
                         .child(if app.preview.status_label.is_empty() {
                             locale.result_stats().to_string()
@@ -65,7 +67,8 @@ fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl I
             div()
                 .flex()
                 .items_center()
-                .gap_3()
+                .gap_2()
+                .child(div().w(px(190.)).child(Input::new(&app.grid_filter).cleanable(true)))
                 .child(
                     div()
                         .px_2()
@@ -104,24 +107,35 @@ fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl I
                             })),
                     )
                 })
+                .when(app.dirty_cell.is_some(), |this| {
+                    this.child(
+                        Button::new("commit-grid-edit")
+                            .ghost()
+                            .label(locale.save())
+                            .on_click(cx.listener(|app, _, _, cx| {
+                                app.save_grid_changes(cx);
+                            })),
+                    )
+                })
                 .child(
                     Button::new("refresh-table")
                         .ghost()
                         .label(locale.refresh())
-                        .on_click(cx.listener(|app, _, _, cx| {
-                            app.refresh_preview(cx);
+                        .on_click(cx.listener(|app, _, window, cx| {
+                            app.refresh_preview(window, cx);
                         })),
                 ),
         )
 }
 
-fn render_summary(app: &SuperTableApp) -> impl IntoElement {
+fn render_summary(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     let locale = app.locale;
     let object_count: usize = app.preview.schema_items.iter().map(|item| item.count).sum();
+    let visible_count = app.visible_row_indices(cx).len();
 
     div()
-        .h(px(54.))
-        .px_5()
+        .h(px(38.))
+        .px_4()
         .bg(rgb(TABLE_BG))
         .border_b_1()
         .border_color(rgb(BORDER_SOFT))
@@ -130,7 +144,11 @@ fn render_summary(app: &SuperTableApp) -> impl IntoElement {
         .gap_4()
         .child(metric_card(locale.objects(), object_count))
         .child(metric_card(locale.columns_label(), app.preview.columns.len()))
-        .child(metric_card(locale.rows_label(), app.preview.rows.len()))
+        .child(metric_card(locale.rows_label(), visible_count))
+        .child(metric_card(
+            locale.selected_row(),
+            app.selected_row.map(|row| row + 1).unwrap_or(0),
+        ))
 }
 
 fn metric_card(label: &'static str, value: usize) -> impl IntoElement {
@@ -141,7 +159,7 @@ fn metric_card(label: &'static str, value: usize) -> impl IntoElement {
         .child(
             div()
                 .px_2()
-                .py_1()
+                .py_0p5()
                 .rounded(px(999.))
                 .bg(rgb(ROW_SELECTED))
                 .text_size(px(11.))
@@ -150,15 +168,15 @@ fn metric_card(label: &'static str, value: usize) -> impl IntoElement {
         )
         .child(
             div()
-                .text_size(px(12.))
+                .text_size(px(11.))
                 .text_color(rgb(TEXT_FAINT))
                 .child(label),
         )
 }
 
-fn render_table_header(app: &SuperTableApp) -> impl IntoElement {
+fn render_table_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     div()
-        .h(px(42.))
+        .h(px(36.))
         .px_4()
         .bg(rgb(PANEL_ELEVATED))
         .border_b_1()
@@ -168,13 +186,34 @@ fn render_table_header(app: &SuperTableApp) -> impl IntoElement {
         .text_size(px(12.))
         .text_color(rgb(TEXT_FAINT))
         .child(div().w(px(56.)).child("#"))
-        .children(app.preview.columns.iter().map(|column| {
-            div().w(px(196.)).truncate().child(column.clone())
+        .children(app.preview.columns.iter().enumerate().map(|(index, column)| {
+            let is_active_sort = app.sort_column == Some(index);
+            let suffix = if is_active_sort {
+                if app.sort_desc { " ↓" } else { " ↑" }
+            } else {
+                ""
+            };
+
+            div()
+                .w(px(196.))
+                .rounded(px(6.))
+                .px_2()
+                .py_0p5()
+                .bg(if is_active_sort {
+                    rgb(ROW_SELECTED)
+                } else {
+                    rgb(PANEL_ELEVATED)
+                })
+                .on_mouse_down(gpui::MouseButton::Left, cx.listener(move |app, _, _, cx| {
+                    app.toggle_sort(index, cx);
+                }))
+                .child(format!("{column}{suffix}"))
         }))
 }
 
-fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
+fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> gpui::AnyElement {
     let locale = app.locale;
+    let visible_rows = app.visible_row_indices(cx);
 
     if let Some(error) = &app.preview_error {
         return div()
@@ -189,10 +228,11 @@ fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
                     .text_size(px(12.))
                     .text_color(rgb(TEXT_MUTED))
                     .child(error.clone()),
-            );
+            )
+            .into_any_element();
     }
 
-    if app.preview.rows.is_empty() {
+    if visible_rows.is_empty() {
         return div()
             .flex_1()
             .flex()
@@ -203,22 +243,26 @@ fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
                     .text_size(px(13.))
                     .text_color(rgb(TEXT_MUTED))
                     .child(locale.no_data()),
-            );
+            )
+            .into_any_element();
     }
 
     div()
         .flex_1()
-        .children(app.preview.rows.iter().enumerate().map(|(ix, row)| {
-            let bg = if ix == 0 {
+        .overflow_scrollbar()
+        .children(visible_rows.into_iter().enumerate().map(|(visual_ix, row_index)| {
+            let row = &app.preview.rows[row_index];
+            let is_selected = app.selected_row == Some(row_index);
+            let bg = if is_selected {
                 rgb(ROW_SELECTED)
-            } else if ix % 2 == 0 {
+            } else if visual_ix % 2 == 0 {
                 rgb(TABLE_BG)
             } else {
                 rgb(ROW_ALT)
             };
 
             div()
-                .h(px(44.))
+                .h(px(38.))
                 .px_4()
                 .flex()
                 .items_center()
@@ -226,21 +270,24 @@ fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
                 .border_b_1()
                 .border_color(rgb(BORDER_SOFT))
                 .text_color(rgb(TEXT))
+                .on_mouse_down(gpui::MouseButton::Left, cx.listener(move |app, _, _, cx| {
+                    app.select_row(row_index, cx);
+                }))
                 .child(
                     div()
                         .w(px(56.))
                         .text_size(px(12.))
                         .text_color(rgb(TEXT_FAINT))
-                        .child(format!("{:02}", ix + 1)),
+                        .child(format!("{:02}", row_index + 1)),
                 )
                 .children(row.iter().enumerate().map(|(col_ix, cell)| {
-                    let is_editing = app.editing_cell == Some((ix, col_ix));
+                    let is_editing = app.editing_cell == Some((row_index, col_ix));
 
                     div()
                         .w(px(196.))
-                        .rounded(px(8.))
+                        .rounded(px(6.))
                         .px_2()
-                        .py_1()
+                        .py_0p5()
                         .bg(if is_editing { rgb(PANEL_ELEVATED) } else { bg })
                         .border_1()
                         .border_color(if is_editing {
@@ -250,7 +297,7 @@ fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
                         })
                         .on_mouse_down(gpui::MouseButton::Left, cx.listener(
                             move |app: &mut SuperTableApp, _, window, cx| {
-                                app.begin_cell_edit(ix, col_ix, window, cx);
+                                app.begin_cell_edit(row_index, col_ix, window, cx);
                             },
                         ))
                         .child(if is_editing {
@@ -264,4 +311,55 @@ fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl Int
                         })
                 }))
         }))
+        .into_any_element()
+}
+
+fn render_footer(app: &SuperTableApp) -> impl IntoElement {
+    let locale = app.locale;
+
+    div()
+        .h(px(34.))
+        .px_4()
+        .bg(rgb(PANEL_ELEVATED))
+        .border_t_1()
+        .border_color(rgb(BORDER_SOFT))
+        .flex()
+        .items_center()
+        .justify_between()
+        .child(
+            div()
+                .text_size(px(11.))
+                .text_color(rgb(TEXT_FAINT))
+                .child(format!(
+                    "{} {} / {}",
+                    locale.selected_row(),
+                    app.selected_row.map(|row| row + 1).unwrap_or(0),
+                    app.preview.rows.len()
+                )),
+        )
+        .child(
+            div()
+                .flex()
+                .items_center()
+                .gap_2()
+                .child(pager_chip(locale.first_page()))
+                .child(pager_chip(locale.prev_page()))
+                .child(pager_chip(locale.next_page()))
+                .child(pager_chip(locale.last_page())),
+        )
+}
+
+fn pager_chip(label: &'static str) -> impl IntoElement {
+    div()
+        .h(px(22.))
+        .px_2()
+        .rounded(px(6.))
+        .bg(rgb(TABLE_BG))
+        .border_1()
+        .border_color(rgb(BORDER_SOFT))
+        .flex()
+        .items_center()
+        .text_size(px(11.))
+        .text_color(rgb(TEXT_FAINT))
+        .child(label)
 }
