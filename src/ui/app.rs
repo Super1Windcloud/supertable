@@ -17,6 +17,8 @@ pub struct SuperTableApp {
     pub locale: Locale,
     pub preview: DataPreview,
     pub preview_error: Option<String>,
+    pub cell_editor: Entity<InputState>,
+    pub editing_cell: Option<(usize, usize)>,
     pub connection_name: Entity<InputState>,
     pub connection_host: Entity<InputState>,
     pub connection_port: Entity<InputState>,
@@ -39,6 +41,8 @@ impl SuperTableApp {
             locale,
             preview,
             preview_error,
+            cell_editor: Self::build_input(window, cx, "", ""),
+            editing_cell: None,
             connection_name: Self::build_input(
                 window,
                 cx,
@@ -168,10 +172,56 @@ impl SuperTableApp {
         cx.notify();
     }
 
+    pub fn begin_cell_edit(
+        &mut self,
+        row: usize,
+        column: usize,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let Some(value) = self
+            .preview
+            .rows
+            .get(row)
+            .and_then(|cells| cells.get(column))
+            .cloned()
+        else {
+            return;
+        };
+
+        self.cell_editor
+            .update(cx, |input, cx| input.set_value(value, window, cx));
+        self.editing_cell = Some((row, column));
+        cx.notify();
+    }
+
+    pub fn apply_cell_edit(&mut self, cx: &mut Context<Self>) {
+        let Some((row, column)) = self.editing_cell else {
+            return;
+        };
+        let value = self.cell_editor.read(cx).value().to_string();
+        if let Some(cell) = self
+            .preview
+            .rows
+            .get_mut(row)
+            .and_then(|cells| cells.get_mut(column))
+        {
+            *cell = value;
+        }
+        self.editing_cell = None;
+        cx.notify();
+    }
+
+    pub fn cancel_cell_edit(&mut self, cx: &mut Context<Self>) {
+        self.editing_cell = None;
+        cx.notify();
+    }
+
     fn reload_preview(&mut self) {
         let (preview, preview_error) = preview_for_active_connection(&self.connections);
         self.preview = preview;
         self.preview_error = preview_error;
+        self.editing_cell = None;
     }
 
     fn reset_connection_form(&mut self, window: &mut Window, cx: &mut Context<Self>) {

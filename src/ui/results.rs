@@ -1,5 +1,8 @@
 use gpui::{Context, IntoElement, div, px, rgb, prelude::*};
-use gpui_component::button::{Button, ButtonVariants};
+use gpui_component::{
+    button::{Button, ButtonVariants},
+    input::Input,
+};
 
 use crate::palette::{
     ACCENT, BLUE_SOFT, BORDER, BORDER_SOFT, PANEL_ELEVATED, ROW_ALT, ROW_SELECTED, TABLE_BG,
@@ -21,7 +24,7 @@ pub fn render_panel(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> imp
         .child(render_header(app, cx))
         .child(render_summary(app))
         .child(render_table_header(app))
-        .child(render_rows(app))
+        .child(render_rows(app, cx))
 }
 
 fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
@@ -73,6 +76,34 @@ fn render_header(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl I
                         .text_color(rgb(TEXT))
                         .child(locale.live_source()),
                 )
+                .child(
+                    div()
+                        .px_2()
+                        .py_1()
+                        .rounded(px(999.))
+                        .bg(rgb(ROW_SELECTED))
+                        .text_size(px(11.))
+                        .text_color(rgb(ACCENT))
+                        .child(locale.editable_grid()),
+                )
+                .when(app.editing_cell.is_some(), |this| {
+                    this.child(
+                        Button::new("save-cell-edit")
+                            .ghost()
+                            .label(locale.save())
+                            .on_click(cx.listener(|app, _, _, cx| {
+                                app.apply_cell_edit(cx);
+                            })),
+                    )
+                    .child(
+                        Button::new("cancel-cell-edit")
+                            .ghost()
+                            .label(locale.cancel_edit())
+                            .on_click(cx.listener(|app, _, _, cx| {
+                                app.cancel_cell_edit(cx);
+                            })),
+                    )
+                })
                 .child(
                     Button::new("refresh-table")
                         .ghost()
@@ -142,7 +173,7 @@ fn render_table_header(app: &SuperTableApp) -> impl IntoElement {
         }))
 }
 
-fn render_rows(app: &SuperTableApp) -> impl IntoElement {
+fn render_rows(app: &SuperTableApp, cx: &mut Context<SuperTableApp>) -> impl IntoElement {
     let locale = app.locale;
 
     if let Some(error) = &app.preview_error {
@@ -202,12 +233,35 @@ fn render_rows(app: &SuperTableApp) -> impl IntoElement {
                         .text_color(rgb(TEXT_FAINT))
                         .child(format!("{:02}", ix + 1)),
                 )
-                .children(row.iter().map(|cell| {
+                .children(row.iter().enumerate().map(|(col_ix, cell)| {
+                    let is_editing = app.editing_cell == Some((ix, col_ix));
+
                     div()
                         .w(px(196.))
-                        .truncate()
-                        .text_color(rgb(TEXT_MUTED))
-                        .child(cell.clone())
+                        .rounded(px(8.))
+                        .px_2()
+                        .py_1()
+                        .bg(if is_editing { rgb(PANEL_ELEVATED) } else { bg })
+                        .border_1()
+                        .border_color(if is_editing {
+                            rgb(ACCENT)
+                        } else {
+                            rgb(BORDER_SOFT)
+                        })
+                        .on_mouse_down(gpui::MouseButton::Left, cx.listener(
+                            move |app: &mut SuperTableApp, _, window, cx| {
+                                app.begin_cell_edit(ix, col_ix, window, cx);
+                            },
+                        ))
+                        .child(if is_editing {
+                            Input::new(&app.cell_editor).cleanable(true).into_any_element()
+                        } else {
+                            div()
+                                .truncate()
+                                .text_color(rgb(TEXT_MUTED))
+                                .child(cell.clone())
+                                .into_any_element()
+                        })
                 }))
         }))
 }

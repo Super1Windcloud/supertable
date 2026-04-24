@@ -140,6 +140,34 @@ impl Locale {
         }
     }
 
+    pub fn save(self) -> &'static str {
+        match self {
+            Self::ZhCn => "保存",
+            Self::EnUs => "Save",
+        }
+    }
+
+    pub fn edit(self) -> &'static str {
+        match self {
+            Self::ZhCn => "编辑",
+            Self::EnUs => "Edit",
+        }
+    }
+
+    pub fn cancel_edit(self) -> &'static str {
+        match self {
+            Self::ZhCn => "取消编辑",
+            Self::EnUs => "Cancel Edit",
+        }
+    }
+
+    pub fn editable_grid(self) -> &'static str {
+        match self {
+            Self::ZhCn => "可编辑网格",
+            Self::EnUs => "Editable Grid",
+        }
+    }
+
     pub fn database_explorer(self) -> &'static str {
         match self {
             Self::ZhCn => "数据库浏览器",
